@@ -82,7 +82,7 @@ impl Grid {
     }
 
     pub fn display(&self, player: &Player) {
-        println!("Carte (😃 = joueur sans chapeau, 🤠 = joueur avec chapeau, 🎁 = objet, 👑 = objectif, ◼️ = mur, 🐉 = ennemi) :");
+        println!("Carte (😃 = joueur, 🎁 = objet, 👑 = artefact, 🐉 = ennemi, 🟥 = mur) : \n");
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.player_position == (x, y) {
@@ -122,7 +122,7 @@ impl Grid {
     }
 
     pub fn move_player(&mut self, player: &mut Player) {
-        println!("Entrez votre déplacement (z = haut, q = gauche, s = bas, d = droite) :");
+        println!("\nEntrez votre déplacement (z = haut, q = gauche, s = bas, d = droite) :");
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("Erreur de lecture");
         let direction = input.trim();

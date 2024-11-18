@@ -82,21 +82,25 @@ impl Grid {
     }
 
     pub fn display(&self, player: &Player) {
-        println!("Carte (P = joueur, O = objet, G = objectif, ◼️ = mur) :");
+        println!("Carte (😃 = joueur sans chapeau, 🤠 = joueur avec chapeau, 🎁 = objet, 👑 = objectif, ◼️ = mur, 🐉 = ennemi) :");
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.player_position == (x, y) {
-                    print!("P ");
+                    if player.has_hat() {
+                        print!("🤠 ");
+                    } else {
+                        print!("😃 ");
+                    }
                 } else if self.goal == (x, y) {
-                    print!("G ");
+                    print!("👑 ");
                 } else if self.walls.contains(&(x, y)) {
-                    print!("◼️ ");
+                    print!("🟥 ");
                 } else if self.items.iter().any(|i| i.position == (x, y)) {
-                    print!("O ");
+                    print!("🎁 ");
                 } else if self.should_display_enemy(player, (x, y)) {
-                    print!("E ");
+                    print!("🐉 ");
                 } else {
-                    print!(". ");
+                    print!("⬛️ ");
                 }
             }
             println!();

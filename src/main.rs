@@ -17,21 +17,11 @@ fn main() {
     println!("Des artefacts secondaires peuvent vous aider à survivre...\n");
 
     // Crée la carte et le joueur
-    let width = 10;
-    let height = 10;
-    let mut grid = Grid::new(width, height); // Grille 10x10
+    let width = 21;
+    let height = 21;
+    let mut grid = Grid::new(width, height); // Grille 20x20
     
     let mut player = Player::new("Joueur".to_string(), 100);
-
-    // Calculer le nombre de murs, d'objets et de monstres en fonction de la taille de la carte
-    let num_walls = (width * height) / 4;
-    let num_items = (width * height) / 10;
-    let num_enemies = (width * height) / 8;
-
-    // Ajouter des ennemis, des objets et des murs
-    grid.place_random_enemies(num_enemies);
-    grid.place_random_items(num_items);
-    grid.place_random_walls(num_walls);
 
     // Mutex pour gérer la concurrence
     let player_shared = Arc::new(Mutex::new(player));
@@ -61,24 +51,25 @@ fn main() {
 
         if grid.has_won() {
             println!("\nBravo ! Vous avez trouvé l'artefact !");
+            println!("\n==========================================================================\n");
             break;
         }
 
         // Déplacement du joueur
         grid.move_player(&mut player);
 
-        // Vérification des rencontres
-        if let Some(enemy) = grid.check_for_enemy() {
-            println!("\nUn monstres apparaît !");
-            combat::start_combat(&mut player, enemy);
-            grid.remove_enemy_at_player_position();
-        }
-
         // Vérification des objets
         if let Some(item) = grid.check_for_item() {
             println!("\nVous trouvez un objet : {} !", item.name);
             player.pick_item(item);
             grid.remove_item_at_player_position();
+        }
+
+        // Vérification des rencontres
+        if let Some(enemy) = grid.check_for_enemy() {
+            println!("\nUn monstres apparaît !");
+            combat::start_combat(&mut player, enemy);
+            grid.remove_enemy_at_player_position();
         }
     }
 }

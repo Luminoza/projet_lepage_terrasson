@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum EquipmentType {
     Mysterious,
     Hat,
@@ -8,24 +8,10 @@ pub enum EquipmentType {
     Whip,
 }
 
-pub trait GetName {
+pub trait Equipment {
     fn get_name(&self) -> String;
-}
-
-pub trait GetIcon {
     fn get_icon(&self) -> char;
-}
-
-pub trait GetDescription {
     fn get_description(&self) -> String;
-}
-
-pub trait GetPosition {
     fn get_position(&self) -> (usize, usize);
-}
-
-pub trait GetType {
     fn get_type(&self) -> EquipmentType;
 }
-
-

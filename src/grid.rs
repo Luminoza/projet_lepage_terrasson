@@ -28,35 +28,61 @@ impl Grid {
     pub fn place_random_enemies(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
-            self.enemies.push(Enemy::random(
-                rng.gen_range(0..self.width),
-                rng.gen_range(0..self.height),
-            ));
+            loop {
+                let position = (
+                    rng.gen_range(0..self.width),
+                    rng.gen_range(0..self.height),
+                );
+                if self.is_position_empty(position) {
+                    self.enemies.push(Enemy::random(position.0, position.1));
+                    break;
+                }
+            }
         }
     }
 
     pub fn place_random_items(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
-            self.items.push(Item::random(
-                rng.gen_range(0..self.width),
-                rng.gen_range(0..self.height),
-            ));
+            loop {
+                let position = (
+                    rng.gen_range(0..self.width),
+                    rng.gen_range(0..self.height),
+                );
+                if self.is_position_empty(position) {
+                    self.items.push(Item::random(position.0, position.1));
+                    break;
+                }
+            }
         }
     }
 
     pub fn place_random_walls(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
-            self.walls.push((
-                rng.gen_range(0..self.width),
-                rng.gen_range(0..self.height),
-            ));
+            loop {
+                let position = (
+                    rng.gen_range(0..self.width),
+                    rng.gen_range(0..self.height),
+                );
+                if self.is_position_empty(position) {
+                    self.walls.push(position);
+                    break;
+                }
+            }
         }
     }
 
-    pub fn display(&self) {
-        println!("Carte (P = joueur, E = ennemi, O = objet, G = objectif, # = mur) :");
+    fn is_position_empty(&self, position: (usize, usize)) -> bool {
+        position != self.player_position
+            && position != self.goal
+            && !self.walls.contains(&position)
+            && !self.items.iter().any(|i| i.position == position)
+            && !self.enemies.iter().any(|e| e.position == position)
+    }
+
+    pub fn display(&self, player: &Player) {
+        println!("Carte (P = joueur, O = objet, G = objectif, ◼️ = mur) :");
         for y in 0..self.height {
             for x in 0..self.width {
                 if self.player_position == (x, y) {
@@ -65,16 +91,30 @@ impl Grid {
                     print!("G ");
                 } else if self.walls.contains(&(x, y)) {
                     print!("◼️ ");
-                } else if self.enemies.iter().any(|e| e.position == (x, y)) {
-                    print!("E ");
                 } else if self.items.iter().any(|i| i.position == (x, y)) {
                     print!("O ");
+                } else if self.should_display_enemy(player, (x, y)) {
+                    print!("E ");
                 } else {
                     print!(". ");
                 }
             }
             println!();
         }
+    }
+
+    fn should_display_enemy(&self, player: &Player, position: (usize, usize)) -> bool {
+        let distance = ((self.player_position.0 as isize - position.0 as isize).abs().max((self.player_position.1 as isize - position.1 as isize).abs())) as usize;
+        let visibility_range = if player.has_hat() { 5 } else { 2 };
+        self.enemies.iter().any(|e| e.position == position && distance <= visibility_range)
+    }
+
+    pub fn remove_enemy_at_player_position(&mut self) {
+        self.enemies.retain(|e| e.position != self.player_position);
+    }
+
+    pub fn remove_item_at_player_position(&mut self) {
+        self.items.retain(|i| i.position != self.player_position);
     }
 
     pub fn move_player(&mut self, player: &mut Player) {

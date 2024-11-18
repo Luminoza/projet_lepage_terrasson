@@ -15,7 +15,7 @@ fn main() {
     println!("Des artefacts secondaires peuvent vous aider à survivre...");
 
     // Crée la carte et le joueur
-    let mut grid = Grid::new(10, 10); // Grille 10x10
+    let mut grid = Grid::new(10, 10); // Grille 20x20
     
     let mut player = Player::new("Héros".to_string(), 100);
 
@@ -40,7 +40,10 @@ fn main() {
 
     // Boucle principale du jeu
     loop {
-        grid.display();
+        let player = player_shared.lock().unwrap();
+        grid.display(&player);
+        drop(player); // Libérer le verrou avant de reprendre le verrou plus tard
+
         let mut player = player_shared.lock().unwrap();
         if player.is_dead() {
             println!("Game Over ! Vous êtes mort...");
@@ -59,12 +62,14 @@ fn main() {
         if let Some(enemy) = grid.check_for_enemy() {
             println!("Un monstres apparaît !");
             combat::start_combat(&mut player, enemy);
+            grid.remove_enemy_at_player_position();
         }
 
         // Vérification des objets
         if let Some(item) = grid.check_for_item() {
             println!("Vous trouvez un objet : {} !", item.name);
             player.pick_item(item);
+            grid.remove_item_at_player_position();
         }
     }
 }

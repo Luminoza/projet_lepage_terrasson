@@ -1,14 +1,18 @@
 use std::collections::HashSet;
 use rand::Rng;
 use rand::prelude::SliceRandom;
-use crate::player::{Player, Enemy, Item};
+
 use crossterm::event::{self, Event, KeyCode};
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 
+use crate::player::{Player, Enemy, Item, ItemType, EquipmentType}; // Ajout de ItemType
+
+/// Structure représentant la grille de jeu
 pub struct Grid {
     width: usize,
     height: usize,
     player_position: (usize, usize),
+    last_position: (usize, usize), // Ajout de la dernière position du joueur
     enemies: Vec<Enemy>,
     items: Vec<Item>,
     goal: (usize, usize),
@@ -19,12 +23,19 @@ pub struct Grid {
 
 impl Grid {
 
+    /**
+     * Constructeur pour initialiser une nouvelle grille
+     * @param width Largeur de la grille
+     * @param height Hauteur de la grille
+     * @return Une nouvelle instance de Grid
+     */
     pub fn new(width: usize, height: usize) -> Self {
         let goal = (width - 1, height - 1);
         let mut grid = Grid {
             width,
             height,
             player_position: (0, 0),
+            last_position: (0, 0), // Initialisation de la dernière position
             enemies: vec![],
             items: vec![],
             goal,
@@ -33,11 +44,15 @@ impl Grid {
             visible_items: HashSet::new(),
         };
         grid.place_walls();
-        // grid.place_items((width * height) / 20);
-        // grid.place_enemies((width * height) / 10);
+        grid.place_items((width * height) / 50);
+        grid.place_enemies((width * height) / 30);
         grid
     }
 
+    /**
+     * Génère un labyrinthe en utilisant l'algorithme de parcours en profondeur
+     * @return Un vecteur 2D représentant le labyrinthe
+     */
     fn generate_maze(&self) -> Vec<Vec<u8>> {
         let mut maze = vec![vec![0; self.width]; self.height];
         let mut stack = vec![(0, 0)];
@@ -70,17 +85,18 @@ impl Grid {
         maze
     }
 
+    /**
+     * Place les murs sur la grille en utilisant le labyrinthe généré
+     */
     pub fn place_walls(&mut self) {
         let mut maze = self.generate_maze();
 
         let mut rng = rand::thread_rng();
         for x in 0..self.width {
             for y in 0..self.height {
-                if (x == 0 || x == self.width - 1 || y == 0 || y == self.height - 1) && !(x == 0 && y == 0) && !(x == self.width - 1 && y == 0) && !(x == 0 && y == self.height - 1) && !(x == self.width - 1 && y == self.height - 1) {
-                    if rng.gen_range(0..1) == 1 {
+                    if rng.gen_range(0..100) < 10 {
                         maze[y][x] = 1;
-                    }
-                }
+                     }
             }
         }
 
@@ -93,6 +109,10 @@ impl Grid {
         }
     }
 
+    /**
+     * Place des objets aléatoirement sur la grille
+     * @param count Nombre d'objets à placer
+     */
     pub fn place_items(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
@@ -110,6 +130,10 @@ impl Grid {
         }
     }
 
+    /**
+     * Place des ennemis aléatoirement sur la grille
+     * @param count Nombre d'ennemis à placer
+     */
     pub fn place_enemies(&mut self, count: usize) {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
@@ -127,6 +151,11 @@ impl Grid {
         }
     }
 
+    /**
+     * Vérifie si une position est vide (pas de mur, objet, ennemi, etc.)
+     * @param position La position à vérifier
+     * @return Vrai si la position est vide, sinon faux
+     */
     fn is_position_empty(&self, position: (usize, usize)) -> bool {
         position != self.player_position
             && position != self.goal
@@ -135,6 +164,10 @@ impl Grid {
             && !self.enemies.iter().any(|e| e.position == position)
     }
 
+    /**
+     * Affiche la grille avec les éléments visibles
+     * @param player Le joueur actuel
+     */
     pub fn display(&mut self, player: &Player) {
         println!("Carte (😃 = joueur, 🎁 = objet, 👑 = artefact, 🐉 = ennemi, 🟥 = mur) : \n");
         for y in 0..self.height {
@@ -150,7 +183,22 @@ impl Grid {
                 } else if self.should_display_wall(player, (x, y)) {
                     print!("🟥");
                 } else if self.should_display_item(player, (x, y)) {
-                    print!("🎁");
+                    let item = self.items.iter().find(|i| i.position == (x, y)).unwrap();
+                    if player.has_glasses() {
+                        match item.item_type {
+                            ItemType::Potion => print!("🧪"),
+                            ItemType::Equipment(ref e) => match e {
+                                EquipmentType::Hat => print!("🎩"),
+                                EquipmentType::Glasses => print!("👓"),
+                                EquipmentType::Vest => print!("🦺"),
+                                EquipmentType::Pants => print!("👖"),
+                                EquipmentType::Shoes => print!("👞"),
+                                EquipmentType::Whip => print!("💫"),
+                            },
+                        }
+                    } else {
+                        print!("🎁");
+                    }
                 } else if self.should_display_enemy(player, (x, y)) {
                     print!("🐉");
                 } else {
@@ -161,6 +209,12 @@ impl Grid {
         }
     }
 
+    /**
+     * Vérifie si un mur doit être affiché
+     * @param player Le joueur actuel
+     * @param position La position du mur
+     * @return Vrai si le mur doit être affiché, sinon faux
+     */
     fn should_display_wall(&mut self, player: &Player, position: (usize, usize)) -> bool {
         let distance = ((self.player_position.0 as isize - position.0 as isize).abs().max((self.player_position.1 as isize - position.1 as isize).abs())) as usize;
         let visibility_range = if player.has_hat() { 5 } else { 2 };
@@ -172,6 +226,12 @@ impl Grid {
         }
     }
 
+    /**
+     * Vérifie si un objet doit être affiché
+     * @param player Le joueur actuel
+     * @param position La position de l'objet
+     * @return Vrai si l'objet doit être affiché, sinon faux
+     */
     fn should_display_item(&mut self, player: &Player, position: (usize, usize)) -> bool {
         let distance = ((self.player_position.0 as isize - position.0 as isize).abs().max((self.player_position.1 as isize - position.1 as isize).abs())) as usize;
         let visibility_range = if player.has_hat() { 5 } else { 2 };
@@ -183,25 +243,48 @@ impl Grid {
         }
     }
 
+    /**
+     * Vérifie si un ennemi doit être affiché
+     * @param player Le joueur actuel
+     * @param position La position de l'ennemi
+     * @return Vrai si l'ennemi doit être affiché, sinon faux
+     */
     fn should_display_enemy(&self, player: &Player, position: (usize, usize)) -> bool {
         let distance = ((self.player_position.0 as isize - position.0 as isize).abs().max((self.player_position.1 as isize - position.1 as isize).abs())) as usize;
         let visibility_range = if player.has_hat() { 5 } else { 2 };
         self.enemies.iter().any(|e| e.position == position && distance <= visibility_range)
     }
 
+    /**
+     * Supprime l'ennemi à la position du joueur
+     */
     pub fn remove_enemy_at_player_position(&mut self) {
         self.enemies.retain(|e| e.position != self.player_position);
     }
 
+    /**
+     * Supprime l'objet à la position du joueur
+     */
     pub fn remove_item_at_player_position(&mut self) {
         self.items.retain(|i| i.position != self.player_position);
         self.visible_items.remove(&self.player_position);
     }
 
+    /**
+     * Déplace le joueur en fonction de l'entrée utilisateur
+     * @param player Le joueur actuel
+     */
     pub fn move_player(&mut self, player: &mut Player) {
-        println!("\nEntrez votre déplacement (z = hauts, q = gauche, s = bas, d = droite) :");
+        println!("\nEntrez votre déplacement (z = hauts, q = gauche, s = bas, d = droite, c = suicide) :");
 
         let direction = self.read_input();
+
+        if direction == 'c' {
+            println!("\nIndiana à préféré se suicider que d'essayer de survivre\n");
+            std::process::exit(0);
+        }
+
+        self.last_position = self.player_position; // Sauvegarde de la position actuelle
 
         let (mut x, mut y) = self.player_position;
         let new_position = match direction {
@@ -221,6 +304,17 @@ impl Grid {
         }
     }
 
+    /**
+     * Gère la fuite lors d'un combat
+     */
+    pub fn flee(&mut self) {
+        self.player_position = self.last_position; // Retour à la position précédente
+    }
+
+    /**
+     * Lit l'entrée utilisateur pour le déplacement
+     * @return Le caractère représentant la direction du déplacement
+     */
     fn read_input(&self) -> char {
         enable_raw_mode().unwrap();
         let result = loop {
@@ -235,6 +329,10 @@ impl Grid {
         result
     }
 
+    /**
+     * Vérifie si un objet est à la position du joueur
+     * @return Une option contenant l'objet si trouvé, sinon None
+     */
     pub fn check_for_item(&self) -> Option<Item> {
         self.items
             .iter()
@@ -242,6 +340,10 @@ impl Grid {
             .cloned()
     }
 
+    /**
+     * Vérifie si un ennemi est à la position du joueur
+     * @return Une option contenant l'ennemi si trouvé, sinon None
+     */
     pub fn check_for_enemy(&self) -> Option<Enemy> {
         self.enemies
             .iter()
@@ -249,6 +351,10 @@ impl Grid {
             .cloned()
     }
 
+    /**
+     * Vérifie si le joueur a atteint l'objectif
+     * @return Vrai si le joueur a atteint l'objectif, sinon faux
+     */
     pub fn has_won(&self) -> bool {
         self.player_position == self.goal
     }

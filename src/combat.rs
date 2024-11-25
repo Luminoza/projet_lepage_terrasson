@@ -1,6 +1,7 @@
 use crate::player::{Player, Enemy};
+use crate::grid::Grid;
 
-pub fn start_combat(player: &mut Player, mut enemy: Enemy) {
+pub fn start_combat(player: &mut Player, mut enemy: Enemy, grid: &mut Grid) {
     println!("Combat entre {} et {} commence !", player.name, enemy.name);
     let mut turn = 1;
 
@@ -34,7 +35,7 @@ pub fn start_combat(player: &mut Player, mut enemy: Enemy) {
             }
             "3" => {
                 println!("Vous avez fui le combat !");
-                // Retourner à la position précédente
+                grid.flee(); // Retourner à la position précédente
                 break;
             }
             _ => println!("Choix invalide"),

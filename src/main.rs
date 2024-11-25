@@ -68,7 +68,7 @@ fn main() {
         // Vérification des rencontres
         if let Some(enemy) = grid.check_for_enemy() {
             println!("\nUn monstres apparaît !");
-            combat::start_combat(&mut player, enemy);
+            combat::start_combat(&mut player, enemy, &mut grid); // Passez la grille pour gérer la fuite
             grid.remove_enemy_at_player_position();
         }
     }

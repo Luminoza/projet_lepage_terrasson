@@ -14,13 +14,15 @@ struct ItemData {
     description: String,
 }
 
-#[derive(Debug, PartialEq )]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Item {
     name: String,
     icon: String,
     description: String,
     item_type: ItemType,
     position: (usize, usize),
+    visible: bool,
+    equiped: bool,
 }
 
 const FILE_PATH: &str = "./src/items/items.json";
@@ -38,6 +40,8 @@ impl Item {
             description: item_data.description.clone(),
             item_type,
             position,
+            visible: true,
+            equiped: false,
         }
     }
 
@@ -64,6 +68,29 @@ impl Item {
     pub fn get_type(&self) -> &ItemType {
         &self.item_type
     }
+
+    pub fn random() -> ItemType {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        match rng.gen_range(0..6) {
+            0 => ItemType::HealingPotion,
+            _ => ItemType::HealingPotion,
+        }
+    }
+
+    pub fn is_visible(&self) -> bool {
+        self.visible
+    }
+
+    pub fn set_visible(&mut self, visible: bool) {
+        self.visible = visible;
+    }
+
+    pub fn is_equiped(&self) -> bool {
+        self.equiped
+    }
+
+    pub fn set_equiped(&mut self, equiped: bool) {
+        self.equiped = equiped;
+    }
 }
-
-

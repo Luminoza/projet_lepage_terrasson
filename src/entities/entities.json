@@ -1,0 +1,66 @@
+{
+    "Player": {
+        "name": "Camille Constant",
+        "icon": "🕵🏻‍♂️",
+        "description": "A Player allows you to look cool. And to see enemies from furthur away",
+        "hp": 100,
+        "atk": 10,
+        "hostile": false
+    },
+    "Dragon": {
+        "name": "Dragon",
+        "icon": "🐉",
+        "description": "A mythical fire-breathing creature.",
+        "hp": 200,
+        "atk": 50,
+        "hostile": true
+    },
+    "Dino": {
+        "name": "Dinosaure",
+        "icon": "🦖",
+        "description": "The Dinosaure is a powerful creature that can deal great damage.",
+        "hp": 150,
+        "atk": 40,
+        "hostile": true
+    },
+    "Whale": {
+        "name": "Whale",
+        "icon": "🐋",
+        "description": "A large marine mammal.",
+        "hp": 200,
+        "atk": 20,
+        "hostile": true
+    },
+    "Mosquito": {
+        "name": "Mosquito",
+        "icon": "🦟",
+        "description": "A small flying insect.",
+        "hp": 10,
+        "atk": 30,
+        "hostile": true
+    },
+    "Boar": {
+        "name": "Boar",
+        "icon": "🐗",
+        "description": "A wild pig with tusks.",
+        "hp": 100,
+        "atk": 20,
+        "hostile": true
+    },
+    "Dodo": {
+        "name": "Dodo",
+        "icon": "🦤",
+        "description": "An extinct flightless bird.",
+        "hp": 80,
+        "atk": 15,
+        "hostile": true
+    },
+    "Snail": {
+        "name": "Snail",
+        "icon": "🐌",
+        "description": "A slow-moving mollusk.",
+        "hp": 50,
+        "atk": 5,
+        "hostile": true
+    }
+}

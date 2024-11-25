@@ -1,0 +1,32 @@
+{
+    "Hat": {
+        "name": "Hat",
+        "icon": "🎩",
+        "description": "A stylish hat. Makes you see further."
+    },
+    "Glasses": {
+        "name": "Glasses",
+        "icon": "👓",
+        "description": "Glases that help you see better and inside the gifts"
+    },
+    "Vest": {
+        "name": "Vest",
+        "icon": "🦺",
+        "description": "A protective vest. That adds defense."
+    },
+    "Pants": {
+        "name": "Pants",
+        "icon": "👖",
+        "description": "A pair of pants. That adds defense."
+    },
+    "Shoes": {
+        "name": "Shoes",
+        "icon": "👟",
+        "description": "A pair of fast shoes. Makes you walk faster."
+    },
+    "Whip": {
+        "name": "Whip",
+        "icon": "💫",
+        "description": "A powerful whip. That makes you attack faster."
+    }
+}

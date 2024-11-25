@@ -1,6 +1,21 @@
-use super::entity::{Entity, EntityType, SpecificEntity};
+use super::entity::{Entity, EntityTrait, EntityType};
 use crate::equipments::equipment::{Equipment, EquipmentType};
+use std::collections::HashMap;
+use std::fs;
 use crate::items::item::{Item, ItemType};
+use crate::entities::monster::Monster;
+
+const FILE_PATH: &str = "./src/entities/player.json";
+
+#[derive(serde::Deserialize)]
+struct EntityData {
+    name: String,
+    icon: String,
+    description: String,
+    hp: i32,
+    atk: i32,
+    hostile: bool,
+}
 
 pub struct Player {
     base: Entity,
@@ -10,8 +25,24 @@ pub struct Player {
 
 impl Player {
     pub fn new(position: (usize, usize)) -> Player {
+        let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
+        let entity_map: HashMap<String, EntityData> =
+            serde_json::from_str(&data).expect("JSON was not well-formatted");
+
+        let entity_data = entity_map.get("Player").expect("Player data not found");
+
         Player {
-            base: Entity::new(EntityType::Player, position),
+            base: Entity {
+                name: entity_data.name.clone(),
+                icon: entity_data.icon.clone(),
+                description: entity_data.description.clone(),
+                entity_type: EntityType::Monster,
+                hp: entity_data.hp,
+                atk: entity_data.atk,
+                position,
+                hostile: true,
+                visible: true,
+            },
             equipments: Vec::new(),
             items: Vec::new(),
         }
@@ -36,7 +67,11 @@ impl Player {
     pub fn remove_item(&mut self, item_type: ItemType) {
         for item in self.get_items() {
             if item.get_type() == &item_type {
-                let index = self.items.iter().position(|i| i.get_type() == &item_type).unwrap();
+                let index = self
+                    .items
+                    .iter()
+                    .position(|i| i.get_type() == &item_type)
+                    .unwrap();
                 self.items.remove(index);
                 break;
             }
@@ -53,19 +88,28 @@ impl Player {
             }
         }
     }
+
+    pub fn has_equipment(&self, equipment_type: EquipmentType) -> bool {
+        for equipment in &self.equipments {
+            if equipment.get_type() == equipment_type {
+                return true;
+            }
+        }
+        false
+    }
+    pub fn attack(&self, target: &mut Monster) {
+        target.take_damage(self.get_attack());
+    }
 }
 
-impl SpecificEntity for Player {
+impl EntityTrait for Player {
     fn get_health(&self) -> i32 {
         self.base.hp
     }
 
     fn get_attack(&self) -> i32 {
-        for equipment in &self.equipments {
-            if equipment.get_type() == EquipmentType::Whip
-            {
-                return self.base.atk + 20
-            }
+        if self.has_equipment(EquipmentType::Whip) {
+            return self.base.atk + 20;
         }
         self.base.atk
     }
@@ -78,7 +122,7 @@ impl SpecificEntity for Player {
         self.base.get_name()
     }
 
-    fn get_icon(&self) -> char {
+    fn get_icon(&self) -> String {
         self.base.get_icon()
     }
 
@@ -100,22 +144,15 @@ impl SpecificEntity for Player {
 
     fn take_damage(&mut self, damage: i32) {
         let mut resist = 0;
-        for equipment in &self.equipments {
-            if equipment.get_type() == EquipmentType::Vest
-            {
-                resist += 20;
-            }
-            if equipment.get_type() == EquipmentType::Pants {
-                resist += 10;
-            }
+        if self.has_equipment(EquipmentType::Vest) {
+            resist += 20;
         }
-        if damage - resist > 0  {
-            self.base.take_damage(damage-resist);
-        }   
-    }
-
-    fn attack(&self, target: &mut dyn SpecificEntity) {
-        self.base.attack(target);
+        if self.has_equipment(EquipmentType::Pants) {
+            resist += 10;
+        }
+        if damage - resist > 0 {
+            self.base.take_damage(damage - resist);
+        }
     }
 
     fn heal(&mut self, heal: i32) {
@@ -124,5 +161,21 @@ impl SpecificEntity for Player {
 
     fn buff_attack(&mut self, buff: i32) {
         self.base.buff_attack(buff);
+    }
+
+    fn is_dead(&self) -> bool {
+        self.base.is_dead()
+    }
+
+    fn set_hostile(&mut self, hostile: bool) {
+        self.base.set_hostile(hostile);
+    }
+
+    fn is_visible(&self) -> bool {
+        self.base.is_visible()
+    }
+
+    fn set_visible(&mut self, visible: bool) {
+        self.base.set_visible(visible);
     }
 }

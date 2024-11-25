@@ -1,0 +1,10 @@
+{
+    "Player": {
+        "name": "Camille Constant",
+        "icon": "🙂",
+        "description": "A Player allows you to look cool. And to see enemies from furthur away",
+        "hp": 100,
+        "atk": 10,
+        "hostile": false
+    }
+}

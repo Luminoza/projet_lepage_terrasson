@@ -1,42 +1,53 @@
-use crate::player::{Player, Enemy};
-use crate::grid::Grid;
+use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
+use crossterm::event;
 
-pub fn start_combat(player: &mut Player, mut enemy: Enemy, grid: &mut Grid) {
-    println!("Combat entre {} et {} commence !", player.name, enemy.name);
+use crate::entities::entity::EntityTrait;
+
+use crate::entities::player::Player;
+use crate::entities::monster::Monster;
+use crate::items::item::ItemType;
+
+pub fn start_combat(player: &mut Player, monster: &mut Monster) -> bool {
+    println!("\nCombat entre {} et {} commence !", player.get_name(), monster.get_name());
     let mut turn = 1;
 
     loop {
-        println!("\nTour {}: {} ({} HP) vs {} ({} HP)", turn, player.name, player.hp, enemy.name, enemy.hp);
-        println!("1. Attaquer 2. Utiliser une potion 3. Fuir");
-        let mut input = String::new();
-        std::io::stdin().read_line(&mut input).expect("Erreur de lecture");
-        let choix = input.trim();
+        println!("\nTour {}: {} ({} HP) vs {} ({} HP)\n", turn, player.get_name(), player.get_health(), monster.get_name(), monster.get_health());
+        
+        if player.get_items().len() > 0 {
+            println!("\nInventaire : vous avez {} potions de soin", player.get_items().len());
+            println!("\na : Attaquer, p : Utiliser une potion, f : Fuir");
+        }
+        println!("\na : Attaquer, f : Fuir");
 
-        match choix {
-            "1" => {
-                let attack = 10 + player.get_attack_bonus();
-                enemy.hp -= attack;
-                println!("\nVous infligez {} dégâts à l'ennemi !", attack);
-                if enemy.hp <= 0 {
-                    println!("Vous avez vaincu l'ennemi !");
-                    break;
+        enable_raw_mode().unwrap();
+        let action = match event::read().unwrap() {
+            event::Event::Key(event::KeyEvent { code: event::KeyCode::Char(c), .. }) => c,
+            _ => continue,
+        };
+        disable_raw_mode().unwrap();
+
+        match action {
+            'a' => {
+                player.attack( monster);
+                println!("\nVous attaquez l'ennemi !");
+                if monster.is_dead() {
+                    println!("\nVous avez vaincu l'ennemi !");
+                    return true;
                 }
-                let defense = player.get_defense_bonus();
-                let damage = (enemy.attack - defense).max(0);
-                player.hp -= damage;
-                println!("L'ennemi vous inflige {} dégâts !", damage);
+                monster.attack(player);
+                println!("\nL'ennemi vous attaque !");
                 if player.is_dead() {
-                    println!("Vous êtes mort !");
-                    break;
+                    println!("\nVous êtes mort !");
+                    return false;
                 }
             }
-            "2" => {
-                player.use_potion();
+            'p' => {
+                player.use_item(ItemType::HealingPotion);
             }
-            "3" => {
-                println!("Vous avez fui le combat !");
-                grid.flee(); // Retourner à la position précédente
-                break;
+            'f' => {
+                println!("\nVous avez fui le combat !");
+                return false;
             }
             _ => println!("Choix invalide"),
         }

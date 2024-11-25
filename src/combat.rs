@@ -1,11 +1,12 @@
 use crate::player::{Player, Enemy};
+use crate::grid::Grid;
 
-pub fn start_combat(player: &mut Player, mut enemy: Enemy) {
+pub fn start_combat(player: &mut Player, mut enemy: Enemy, grid: &mut Grid) {
     println!("Combat entre {} et {} commence !", player.name, enemy.name);
     let mut turn = 1;
 
     loop {
-        println!("Tour {}: {} ({} HP) vs {} ({} HP)", turn, player.name, player.hp, enemy.name, enemy.hp);
+        println!("\nTour {}: {} ({} HP) vs {} ({} HP)", turn, player.name, player.hp, enemy.name, enemy.hp);
         println!("1. Attaquer 2. Utiliser une potion 3. Fuir");
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("Erreur de lecture");
@@ -15,7 +16,7 @@ pub fn start_combat(player: &mut Player, mut enemy: Enemy) {
             "1" => {
                 let attack = 10 + player.get_attack_bonus();
                 enemy.hp -= attack;
-                println!("Vous infligez {} dégâts à l'ennemi !", attack);
+                println!("\nVous infligez {} dégâts à l'ennemi !", attack);
                 if enemy.hp <= 0 {
                     println!("Vous avez vaincu l'ennemi !");
                     break;
@@ -34,7 +35,7 @@ pub fn start_combat(player: &mut Player, mut enemy: Enemy) {
             }
             "3" => {
                 println!("Vous avez fui le combat !");
-                // Retourner à la position précédente
+                grid.flee(); // Retourner à la position précédente
                 break;
             }
             _ => println!("Choix invalide"),

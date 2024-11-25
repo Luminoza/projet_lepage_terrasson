@@ -29,6 +29,7 @@ pub enum ItemType {
 #[derive(Clone, PartialEq)]
 pub enum EquipmentType {
     Hat,
+    Glasses, // Ajout des lunettes
     Vest,
     Pants,
     Shoes,
@@ -48,11 +49,12 @@ impl Item {
         let item_type = if rng.gen_bool(0.5) {
             ItemType::Potion
         } else {
-            let equipment_type = match rng.gen_range(0..5) {
+            let equipment_type = match rng.gen_range(0..6) {
                 0 => EquipmentType::Hat,
-                1 => EquipmentType::Vest,
-                2 => EquipmentType::Pants,
-                3 => EquipmentType::Shoes,
+                1 => EquipmentType::Glasses,
+                2 => EquipmentType::Vest,
+                3 => EquipmentType::Pants,
+                4 => EquipmentType::Shoes,
                 _ => EquipmentType::Whip,
             };
             ItemType::Equipment(equipment_type)
@@ -61,6 +63,7 @@ impl Item {
             ItemType::Potion => "Potion".to_string(),
             ItemType::Equipment(e) => match e {
                 EquipmentType::Hat => "Chapeau".to_string(),
+                EquipmentType::Glasses => "Lunettes".to_string(),
                 EquipmentType::Vest => "Veste".to_string(),
                 EquipmentType::Pants => "Pantalon".to_string(),
                 EquipmentType::Shoes => "Chaussures".to_string(),
@@ -135,5 +138,9 @@ impl Player {
 
     pub fn has_hat(&self) -> bool {
         self.equipment.iter().any(|e| *e == EquipmentType::Hat)
+    }
+
+    pub fn has_glasses(&self) -> bool {
+        self.equipment.iter().any(|e| *e == EquipmentType::Glasses)
     }
 }

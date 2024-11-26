@@ -224,11 +224,11 @@ impl Grid {
             }
             // Print player's equipment to the right of the maze
             if y == 0 {
-                print!("  Equipments:");
+                print!("\tEquipments:");
             } else if y <= self.player.get_equipment().len() {
                 if let Some(equipment) = self.player.get_equipment().get(y - 1) {
                     print!(
-                        "  {}: {}, {}",
+                        "\t\t{}: {}, {}",
                         equipment.get_icon(),
                         equipment.get_name(),
                         equipment.get_description()
@@ -239,7 +239,7 @@ impl Grid {
             } else {
                 if let Some(item) = self.player.get_items().get(y - self.player.get_equipment().len() - 2) {
                     print!(
-                        "  {}: {}, {}",
+                        "\t\t{}: {}, {}",
                         item.get_icon(),
                         item.get_name(),
                         item.get_description()

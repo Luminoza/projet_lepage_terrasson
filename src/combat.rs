@@ -20,16 +20,25 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster) -> bool {
         }
         println!("\na : Attaquer, f : Fuir");
 
-        enable_raw_mode().unwrap();
-        let action = match event::read().unwrap() {
-            event::Event::Key(event::KeyEvent { code: event::KeyCode::Char(c), .. }) => c,
-            _ => continue,
+        if let Err(e) = enable_raw_mode() {
+            eprintln!("Erreur lors de l'activation du mode brut: {}", e);
+            continue;
+        }
+        let action = match event::read() {
+            Ok(event::Event::Key(event::KeyEvent { code: event::KeyCode::Char(c), .. })) => c,
+            Ok(_) => continue,
+            Err(e) => {
+                eprintln!("Erreur de lecture de l'événement: {}", e);
+                continue;
+            }
         };
-        disable_raw_mode().unwrap();
+        if let Err(e) = disable_raw_mode() {
+            eprintln!("Erreur lors de la désactivation du mode brut: {}", e);
+        }
 
         match action {
             'a' => {
-                player.attack( monster);
+                player.attack(monster);
                 println!("\nVous attaquez l'ennemi !");
                 if monster.is_dead() {
                     println!("\nVous avez vaincu l'ennemi !");

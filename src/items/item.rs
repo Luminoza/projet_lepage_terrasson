@@ -61,9 +61,9 @@ impl Item {
         self.position
     }
 
-    pub fn set_position(&mut self, position: (usize, usize)) {
-        self.position = position;
-    }
+    // pub fn set_position(&mut self, position: (usize, usize)) {
+    //     self.position = position;
+    // }
 
     pub fn get_type(&self) -> &ItemType {
         &self.item_type
@@ -108,15 +108,6 @@ impl ItemManager {
         self.items.push(item);
     }
 
-    pub fn get(&self, position: (usize, usize)) -> Option<&Item> {
-        for item in &self.items {
-            if item.get_position() == position {
-                return Some(item);
-            }
-        }
-        None
-    }
-
     pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Item> {
         self.items
             .iter()
@@ -139,9 +130,5 @@ impl ItemManager {
             }
         }
         None
-    }
-
-    pub fn remove(&mut self, position: (usize, usize)) {
-        self.items.retain(|item| item.get_position() != position);
     }
 }

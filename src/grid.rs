@@ -4,10 +4,10 @@ use std::collections::HashSet;
 
 use crate::combat;
 use crate::entities::entity::{Entity, EntityTrait};
-use crate::entities::monster::{self, Monster, MonsterManager};
+use crate::entities::monster::{self, MonsterManager};
 use crate::entities::player::Player;
 
-use crate::equipments::equipment::{self, Equipment, EquipmentManager, EquipmentType};
+use crate::equipments::equipment::{Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
 
 const WALL_ICON: &str = "🟧";
@@ -68,7 +68,7 @@ impl Grid {
         self.place_walls();
         self.place_items((self.width * self.height) / 50);
         self.place_equipments((self.width * self.height) / 50);
-        self.place_monsters((self.width * self.height) / 30);
+        self.place_monsters((self.width * self.height) / 100);
     }
 
     /**
@@ -313,9 +313,9 @@ impl Grid {
                 } else {
                     if equipment.get_type() == EquipmentType::Hat {
                         self.player.set_range(5);
-                        self.player.set_icon("🤠");
+                        self.player.set_icon(PLAYER_WITH_HAT);
                     } else if equipment.get_type() == EquipmentType::Glasses && !self.player.has_equipment(EquipmentType::Hat) {
-                        self.player.set_icon("🤓");
+                        self.player.set_icon(PLAYER_WITH_GLASSES);
                     }
                     self.player.add_equipment(equipment.clone());
                 }

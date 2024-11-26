@@ -115,15 +115,6 @@ impl EquipmentManager {
         self.equipments.push(equipment);
     }
 
-    pub fn get(&self, position: (usize, usize)) -> Option<&Equipment> {
-        for equipment in &self.equipments {
-            if equipment.get_position() == position {
-                return Some(equipment);
-            }
-        }
-        None
-    }
-
     pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Equipment> {
         self.equipments.iter().filter(|equipment| {
             let (x, y) = equipment.get_position();
@@ -144,10 +135,6 @@ impl EquipmentManager {
             }
         }
         None
-    }
-
-    pub fn remove(&mut self, position: (usize, usize)) {
-        self.equipments.retain(|equipment| equipment.get_position() != position);
     }
     
 }

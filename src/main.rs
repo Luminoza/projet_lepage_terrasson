@@ -3,7 +3,6 @@ mod entities;
 mod equipments;
 mod grid;
 mod items;
-mod utils;
 
 use crossterm::event;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
@@ -38,15 +37,25 @@ fn main() {
         }
 
         println!("\nEntrez votre déplacement (z : hauts, q : gauche, s : bas, d : droite, c : suicide) :");
-        enable_raw_mode().unwrap();
-        let movement = match event::read().unwrap() {
-            event::Event::Key(event::KeyEvent {
+        
+        if let Err(e) = enable_raw_mode() {
+            eprintln!("Erreur lors de l'activation du mode brut: {}", e);
+            continue;
+        }
+        let movement = match event::read() {
+            Ok(event::Event::Key(event::KeyEvent {
                 code: event::KeyCode::Char(c),
                 ..
-            }) => c,
-            _ => continue,
+            })) => c,
+            Ok(_) => continue,
+            Err(e) => {
+                eprintln!("Erreur de lecture de l'événement: {}", e);
+                continue;
+            }
         };
-        disable_raw_mode().unwrap();
+        if let Err(e) = disable_raw_mode() {
+            eprintln!("Erreur lors de la désactivation du mode brut: {}", e);
+        }
 
         if movement == 'c' {
             println!(

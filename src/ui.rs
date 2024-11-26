@@ -91,7 +91,7 @@ impl UI {
         monster_name: &str,
         monster_health: i32,
     ) {
-        let combat_intro = "------ ⚔️ Combat ⚔️ ------";
+        let combat_intro = "------------------ ⚔️ Combat ⚔️ ------------------";
         let combat_info = format!(
             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
             turn,
@@ -169,7 +169,7 @@ impl UI {
         monster_name: &str,
         monster_health: i32,
     ) {
-        let combat_intro = "------ ⚔️ Combat ⚔️ ------";
+        let combat_intro = "------------------ ⚔️ Combat ⚔️ ------------------";
         let combat_info = format!(
             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
             turn,
@@ -283,7 +283,7 @@ pub fn display_suicide_message() {
 
 pub fn display_movement_prompt() {
     println!(
-        "\nEntrez votre déplacement (z : hauts, q : gauche, s : bas, d : droite, c : suicide) :"
+        "\nEntrez votre déplacement (z : hauts, q : gauche, s : bas, d : droite, c : suicide) :\n"
     );
 }
 

@@ -307,20 +307,24 @@ impl Grid {
     pub fn check_for_equipment(&mut self) {
         if let Some(equipment) = self.equipments.get_mut(self.player.get_position()) {
             if equipment.get_position() == self.player.get_position() {
-                if self.player.has_equipment(equipment.get_type()) {
-                    self.player
-                        .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()));
-                } else {
-                    if equipment.get_type() == EquipmentType::Hat {
-                        self.player.set_range(5);
-                        self.player.set_icon(PLAYER_WITH_HAT);
-                    } else if equipment.get_type() == EquipmentType::Glasses && !self.player.has_equipment(EquipmentType::Hat) {
-                        self.player.set_icon(PLAYER_WITH_GLASSES);
+                if !equipment.is_equiped() {
+                    if self.player.has_equipment(equipment.get_type()) {
+                        self.player
+                            .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()));
+                    } else {
+                        if equipment.get_type() == EquipmentType::Hat {
+                            self.player.set_range(5);
+                            self.player.set_icon(PLAYER_WITH_HAT);
+                        } else if equipment.get_type() == EquipmentType::Glasses
+                            && !self.player.has_equipment(EquipmentType::Hat)
+                        {
+                            self.player.set_icon(PLAYER_WITH_GLASSES);
+                        }
+                        self.player.add_equipment(equipment.clone());
                     }
-                    self.player.add_equipment(equipment.clone());
+                    equipment.set_visible(false);
+                    equipment.set_equiped(true);
                 }
-                equipment.set_visible(false);
-                equipment.set_equiped(true);
             }
         }
     }

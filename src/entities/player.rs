@@ -108,6 +108,9 @@ impl Player {
     pub fn get_range(&self) -> usize{
         self.range
     }
+    pub fn set_icon(&mut self, icon: &str) {
+        self.base.icon = icon.to_string();
+    }
 }
 
 impl EntityTrait for Player {

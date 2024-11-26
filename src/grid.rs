@@ -43,8 +43,8 @@ impl Grid {
     pub fn new(width: usize, height: usize) -> Self {
         let mut rng = rand::thread_rng();
         let goal = (
-            rng.gen_range(width / 2..width),
-            rng.gen_range(height / 2..height),
+            rng.gen_range((width * 3 / 4)..width),
+            rng.gen_range((height * 3 / 4)..height),
         );
 
         let map_to_display = vec![vec![NO_WALL_ICON.to_string(); width]; height];
@@ -68,7 +68,7 @@ impl Grid {
         self.place_walls();
         self.place_items((self.width * self.height) / 50);
         self.place_equipments((self.width * self.height) / 50);
-        self.place_monsters((self.width * self.height) / 30);
+        self.place_monsters((self.width * self.height) / 1000);
     }
 
     /**
@@ -77,7 +77,11 @@ impl Grid {
      */
     fn generate_maze(&self) -> Vec<Vec<u8>> {
         let mut maze = vec![vec![0; self.width]; self.height];
-        let mut stack = vec![(0, 0)];
+
+        let start = self.player.get_position();
+        let stop = self.goal;
+
+        let mut stack = vec![start];
         let mut rng = rand::thread_rng();
 
         while let Some((x, y)) = stack.pop() {
@@ -103,6 +107,7 @@ impl Grid {
                 maze[(y + ny) / 2][(x + nx) / 2] = 1;
             }
         }
+        maze[stop.1][stop.0] = 1;
         maze
     }
 
@@ -115,7 +120,7 @@ impl Grid {
         let mut rng = rand::thread_rng();
         for x in 0..self.width {
             for y in 0..self.height {
-                if rng.gen_range(0..100) < 10 {
+                if rng.gen_range(0..100) < 5 {
                     maze[y][x] = 1;
                 }
             }
@@ -190,7 +195,7 @@ impl Grid {
 
     /**
      * Vérifie si une position est vide (pas de mur, objet, ennemi, etc.)
-     * @param position La position �� vérifier
+     * @param position La position à vérifier
      * @return Vrai si la position est vide, sinon faux
      */
     fn is_position_empty(&self, position: (usize, usize)) -> bool {

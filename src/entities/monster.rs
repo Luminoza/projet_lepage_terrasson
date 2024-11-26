@@ -34,14 +34,13 @@ pub struct Monster {
 
 pub fn get_random_monster(position: (usize, usize)) -> Monster {
     let mut rng = rand::thread_rng();
-    match rng.gen_range(0..7) {
-        0 => Monster::new(MonsterType::Dragon, position),
-        1 => Monster::new(MonsterType::Dino, position),
-        2 => Monster::new(MonsterType::Whale, position),
-        3 => Monster::new(MonsterType::Mosquito, position),
-        4 => Monster::new(MonsterType::Boar, position),
-        5 => Monster::new(MonsterType::Turkey, position),
-        6 => Monster::new(MonsterType::Snail, position),
+    match rng.gen_range(0..100) {
+        0..=7 => Monster::new(MonsterType::Dragon, position),
+        8..=15 => Monster::new(MonsterType::Dino, position),
+        16..=30 => Monster::new(MonsterType::Whale, position),
+        31..=45 => Monster::new(MonsterType::Mosquito, position),
+        46..=60 => Monster::new(MonsterType::Boar, position),
+        61..=75 => Monster::new(MonsterType::Turkey, position),
         _ => Monster::new(MonsterType::Snail, position),
     }
 }

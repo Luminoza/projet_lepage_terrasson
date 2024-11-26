@@ -30,7 +30,7 @@ impl Player {
             serde_json::from_str(&data).expect("JSON was not well-formatted");
 
         let entity_data = entity_map.get("Player").expect("Player data not found");
-        let mut range = 2;
+        let range = 2;
         Player {
             base: Entity {
                 name: entity_data.name.clone(),

@@ -190,7 +190,7 @@ impl Grid {
 
     /**
      * Vérifie si une position est vide (pas de mur, objet, ennemi, etc.)
-     * @param position La position �� vérifier
+     * @param position La position à vérifier
      * @return Vrai si la position est vide, sinon faux
      */
     fn is_position_empty(&self, position: (usize, usize)) -> bool {
@@ -218,6 +218,16 @@ impl Grid {
 
         self.build_map();
 
+        let mut item_counts = std::collections::HashMap::new();
+        for item in self.player.get_items() {
+            let entry = item_counts.entry(item.get_name()).or_insert((
+                item.get_icon(),
+                item.get_description(),
+                0,
+            ));
+            entry.2 += 1;
+        }
+
         for y in 0..self.height {
             for x in 0..self.width {
                 print!("{}", self.map_to_display[x][y]);
@@ -235,18 +245,15 @@ impl Grid {
                     );
                 }
             } else if y == self.player.get_equipment().len() + 1 {
-                print!("  Items:");
+                print!("\tItems:");
             } else {
-                if let Some(item) = self
-                    .player
-                    .get_items()
-                    .get(y - self.player.get_equipment().len() - 2)
-                {
+                let item_index = y - self.player.get_equipment().len() - 2;
+                if item_index < item_counts.len() {
+                    let (item_name, (item_icon, item_description, count)) =
+                        item_counts.iter().nth(item_index).unwrap();
                     print!(
-                        "\t\t{}: {}, {}",
-                        item.get_icon(),
-                        item.get_name(),
-                        item.get_description()
+                        "\t\t{}: {}, {}; {}",
+                        item_icon, count, item_name, item_description
                     );
                 }
             }
@@ -302,7 +309,7 @@ impl Grid {
                     if equipment.get_type() == EquipmentType::Hat {
                         self.player.set_range(5);
                         self.player.set_icon("🤠");
-                    } else if equipment.get_type() == EquipmentType::Glasses {
+                    } else if equipment.get_type() == EquipmentType::Glasses && !self.player.has_equipment(EquipmentType::Hat) {
                         self.player.set_icon("🤓");
                     }
                     self.player.add_equipment(equipment.clone());

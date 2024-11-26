@@ -2,28 +2,28 @@
     "Dragon": {
         "name": "Dragon",
         "icon": "🐉",
-        "description": "A mythical fire-breathing creature.",
+        "description": "Very powerful flee at all cost!",
         "hp": 200,
         "atk": 50
     },
     "Dino": {
         "name": "Dinosaure",
         "icon": "🦖",
-        "description": "The Dinosaure is a powerful creature that can deal great damage.",
+        "description": "Imensly dangerous, to avoid!",
         "hp": 150,
         "atk": 40
     },
     "Whale": {
         "name": "Whale",
         "icon": "🐋",
-        "description": "A large marine mammal.",
+        "description": "Will block your way.",
         "hp": 200,
         "atk": 20
     },
     "Mosquito": {
         "name": "Mosquito",
         "icon": "🦟",
-        "description": "A small flying insect.",
+        "description": "Stings but not resistent",
         "hp": 10,
         "atk": 30
     },
@@ -37,14 +37,14 @@
     "Turkey": {
         "name": "Turkey",
         "icon": "🦃",
-        "description": "A large bird native to North America.",
+        "description": "Anoying bird.",
         "hp": 80,
         "atk": 15
     },
     "Snail": {
         "name": "Snail",
         "icon": "🐌",
-        "description": "A slow-moving mollusk.",
+        "description": "Mollusk with a shell.",
         "hp": 50,
         "atk": 5
     }

@@ -2,31 +2,31 @@
     "Hat": {
         "name": "Hat",
         "icon": "🎩",
-        "description": "A stylish hat. Makes you see further."
+        "description": "Hat, makes you map faster."
     },
     "Glasses": {
         "name": "Glasses",
         "icon": "👓",
-        "description": "Glases that help you see better and inside the gifts"
+        "description": "Glases, see inside gifts"
     },
     "Vest": {
         "name": "Vest",
         "icon": "🦺",
-        "description": "A protective vest. That adds defense."
+        "description": "Vest, adds to your defense."
     },
     "Pants": {
         "name": "Pants",
         "icon": "👖",
-        "description": "A pair of pants. That adds defense."
+        "description": "Pants, adds to your defense."
     },
     "Shoes": {
         "name": "Shoes",
         "icon": "👟",
-        "description": "A pair of fast shoes. Makes you walk faster."
+        "description": "Shoes, makes you go faster."
     },
     "Whip": {
         "name": "Whip",
         "icon": "💫",
-        "description": "A powerful whip. That makes you attack faster."
+        "description": "Whip, adds to your attack."
     }
 }

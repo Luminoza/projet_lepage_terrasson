@@ -9,6 +9,7 @@ use crate::entities::player::Player;
 
 use crate::equipments::equipment::{self, Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
+use crate::ui::{self, UI};
 
 const WALL_ICON: &str = "🟧";
 const NO_WALL_ICON: &str = "⬛️";
@@ -31,6 +32,7 @@ pub struct Grid {
     walls: Vec<(usize, usize)>,
     visible_walls: HashSet<(usize, usize)>,
     map_to_display: Vec<Vec<String>>,
+    ui: UI,
 }
 
 impl Grid {
@@ -38,9 +40,10 @@ impl Grid {
      * Constructeur pour initialiser une nouvelle grille
      * @param width Largeur de la grille
      * @param height Hauteur de la grille
+     * @param ui Référence mutable à l'instance de UI
      * @return Une nouvelle instance de Grid
      */
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(width: usize, height: usize, ui: UI) -> Self {
         let mut rng = rand::thread_rng();
         let goal = (
             rng.gen_range((width * 3 / 4)..width),
@@ -61,6 +64,7 @@ impl Grid {
             walls: vec![],
             visible_walls: HashSet::new(),
             map_to_display,
+            ui,
         }
     }
 
@@ -69,6 +73,13 @@ impl Grid {
         self.place_items((self.width * self.height) / 50);
         self.place_equipments((self.width * self.height) / 50);
         self.place_monsters((self.width * self.height) / 30);
+        self.update_ui();
+    }
+
+    fn update_ui(&mut self) {
+        self.ui.update_map(self.map_to_display.clone());
+        self.ui.update_equipments(self.player.get_equipment().clone());
+        self.ui.update_items(self.player.get_items().clone());
     }
 
     /**
@@ -212,58 +223,60 @@ impl Grid {
      * @param player Le joueur actuel
      */
     pub fn display(&mut self) {
-        println!(
-            "Carte ({} : joueur, {} : artefact, {} : objet, {} : ennemi, {} : mur) : \n",
-            self.player.get_icon(),
-            GOAL_ICON,
-            DEFAULT_ITEM_ICON,
-            DEFAULT_ENEMY_ICON,
-            WALL_ICON,
-        );
+        // println!(
+        //     "Carte ({} : joueur, {} : artefact, {} : objet, {} : ennemi, {} : mur) : \n",
+        //     self.player.get_icon(),
+        //     GOAL_ICON,
+        //     DEFAULT_ITEM_ICON,
+        //     DEFAULT_ENEMY_ICON,
+        //     WALL_ICON,
+        // );
 
         self.build_map();
+        self.update_ui();
+        self.ui.display_game_view();
 
-        let mut item_counts = std::collections::HashMap::new();
-        for item in self.player.get_items() {
-            let entry = item_counts.entry(item.get_name()).or_insert((
-                item.get_icon(),
-                item.get_description(),
-                0,
-            ));
-            entry.2 += 1;
-        }
+        // let mut item_counts = std::collections::HashMap::new();
+        // for item in self.player.get_items() {
+        //     let entry = item_counts.entry(item.get_name()).or_insert((
+        //         item.get_icon(),
+        //         item.get_description(),
+        //         0,
+        //     ));
+        //     entry.2 += 1;
+        // }
 
-        for y in 0..self.height {
-            for x in 0..self.width {
-                print!("{}", self.map_to_display[x][y]);
-            }
-            // Print player's equipment to the right of the maze
-            if y == 0 {
-                print!("\tEquipments:");
-            } else if y <= self.player.get_equipment().len() {
-                if let Some(equipment) = self.player.get_equipment().get(y - 1) {
-                    print!(
-                        "\t\t{}: {}, {}",
-                        equipment.get_icon(),
-                        equipment.get_name(),
-                        equipment.get_description()
-                    );
-                }
-            } else if y == self.player.get_equipment().len() + 1 {
-                print!("\tItems:");
-            } else {
-                let item_index = y - self.player.get_equipment().len() - 2;
-                if item_index < item_counts.len() {
-                    let (item_name, (item_icon, item_description, count)) =
-                        item_counts.iter().nth(item_index).unwrap();
-                    print!(
-                        "\t\t{}: {}, {}; {}",
-                        item_icon, count, item_name, item_description
-                    );
-                }
-            }
-            println!();
-        }
+        // for y in 0..self.height {
+        //     for x in 0..self.width {
+        //         print!("{}", self.map_to_display[x][y]);
+        //     }
+        //     // Print player's equipment to the right of the maze
+        //     if y == 0 {
+        //         print!("\tEquipments:");
+        //     } else if y <= self.player.get_equipment().len() {
+        //         if let Some(equipment) = self.player.get_equipment().get(y - 1) {
+        //             print!(
+        //                 "\t\t{}: {}, {}",
+        //                 equipment.get_icon(),
+        //                 equipment.get_name(),
+        //                 equipment.get_description()
+        //             );
+        //         }
+        //     } else if y == self.player.get_equipment().len() + 1 {
+        //         print!("\tItems:");
+        //     } else {
+        //         let item_index = y - self.player.get_equipment().len() - 2;
+        //         if item_index < item_counts.len() {
+        //             let (item_name, (item_icon, item_description, count)) =
+        //                 item_counts.iter().nth(item_index).unwrap();
+        //             print!(
+        //                 "\t\t{}: {} {}; {}",
+        //                 item_icon, count, item_name, item_description
+        //             );
+        //         }
+        //     }
+        //     println!();
+        // }
     }
 
     /**
@@ -338,7 +351,7 @@ impl Grid {
         } else {
             let monster = self.monsters.get_mut(self.player.get_position()).unwrap();
             if monster.get_position() == self.player.get_position() && monster.is_visible() {
-                if combat::start_combat(&mut self.player, &mut *monster) {
+                if combat::start_combat(&mut self.player, &mut *monster, &mut self.ui) {
                     monster.set_visible(false);
                 } else {
                     self.flee();
@@ -373,21 +386,22 @@ impl Grid {
     pub fn move_player(&mut self, movement: char) {
         let (x, y) = self.player.get_position();
         let new_position = match movement {
-            'z' if y > 0 => (x, y - 1),
-            'q' if x > 0 => (x - 1, y),
-            's' if y < self.height - 1 => (x, y + 1),
-            'd' if x < self.width - 1 => (x + 1, y),
+            'z' if y > 0 => (x, y - 1), // Move up
+            'q' if x > 0 => (x - 1, y), // Move left
+            's' if y < self.height - 1 => (x, y + 1), // Move down
+            'd' if x < self.width - 1 => (x + 1, y), // Move right
             _ => {
-                println!("Mouvement invalide");
+                ui::display_invalid_movement_message();
                 return;
             }
         };
         if !self.walls.contains(&new_position) {
             self.player.set_position(new_position);
         } else {
-            println!("\nVous ne pouvez pas traverser un mur !\n");
+            ui::display_wall_message();
         }
         self.last_movement = movement;
+        self.update_ui();
     }
 
     /**

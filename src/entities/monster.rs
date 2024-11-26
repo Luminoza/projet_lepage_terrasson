@@ -153,7 +153,6 @@ impl MonsterManager {
         }
         None
     }
-
         pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Monster> {
         self.monsters.iter().filter(|monster| {
             let (mx, my) = monster.get_position();

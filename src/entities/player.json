@@ -1,8 +1,8 @@
 {
     "Player": {
-        "name": "Camille Constant",
+        "name": "Indiana Jones",
         "icon": "🙂",
-        "description": "A Player allows you to look cool. And to see enemies from furthur away",
+        "description": "Explorer of the unknown.",
         "hp": 100,
         "atk": 10
     }

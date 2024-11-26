@@ -1,55 +1,75 @@
-use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
 use crossterm::event;
+use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
 
 use crate::entities::entity::EntityTrait;
-
-use crate::entities::player::Player;
 use crate::entities::monster::Monster;
+use crate::entities::player::Player;
 use crate::items::item::ItemType;
+use crate::ui::{self, UI};
 
-pub fn start_combat(player: &mut Player, monster: &mut Monster) -> bool {
-    println!("\nCombat entre {} et {} commence !", player.get_name(), monster.get_name());
+pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> bool {
+    ui.display_combat_start(
+        0,
+        player.get_icon(),
+        &player.get_name(),
+        player.get_health(),
+        monster.get_icon(),
+        &monster.get_name(),
+        monster.get_health(),
+    );
     let mut turn = 1;
 
     loop {
-        println!("\nTour {}: {} ({} HP) vs {} ({} HP)\n", turn, player.get_name(), player.get_health(), monster.get_name(), monster.get_health());
-        
-        if player.get_items().len() > 0 {
-            println!("\nInventaire : vous avez {} potions de soin", player.get_items().len());
-            println!("\na : Attaquer, p : Utiliser une potion, f : Fuir");
-        }
-        println!("\na : Attaquer, f : Fuir");
-
         enable_raw_mode().unwrap();
         let action = match event::read().unwrap() {
-            event::Event::Key(event::KeyEvent { code: event::KeyCode::Char(c), .. }) => c,
+            event::Event::Key(event::KeyEvent {
+                code: event::KeyCode::Char(c),
+                ..
+            }) => c,
             _ => continue,
         };
         disable_raw_mode().unwrap();
 
         match action {
             'a' => {
-                player.attack( monster);
-                println!("\nVous attaquez l'ennemi !");
+                player.attack(monster);
                 if monster.is_dead() {
-                    println!("\nVous avez vaincu l'ennemi !");
+                    ui::display_victory_in_combat_message();
                     return true;
                 }
                 monster.attack(player);
-                println!("\nL'ennemi vous attaque !");
                 if player.is_dead() {
-                    println!("\nVous êtes mort !");
+                    ui::display_death_message();
                     return false;
                 }
+                ui.display_combat_turn(
+                    turn,
+                    player.get_icon(),
+                    &player.get_name(),
+                    player.get_health(),
+                    monster.get_icon(),
+                    &monster.get_name(),
+                    monster.get_health(),
+                );
             }
             'p' => {
                 player.use_item(ItemType::HealingPotion);
+                ui.update_items(player.get_items().clone());
+                ui.display_combat_turn(
+                    turn,
+                    player.get_icon(),
+                    &player.get_name(),
+                    player.get_health(),
+                    monster.get_icon(),
+                    &monster.get_name(),
+                    monster.get_health(),
+                );
             }
             'f' => {
-                println!("\nVous avez fui le combat !");
+                ui::display_flee_message();
                 return false;
             }
-            _ => println!("Choix invalide"),
+            _ => ui::display_invalid_choice_message(),
         }
         turn += 1;
     }

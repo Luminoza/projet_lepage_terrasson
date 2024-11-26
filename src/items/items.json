@@ -2,6 +2,6 @@
     "HealingPotion": {
         "name": "Healing Potion",
         "icon": "🧪",
-        "description": "A potion that heals 20 HP."
+        "description": "Healing potion, heal 20 Hp"
     }
 }

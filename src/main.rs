@@ -23,19 +23,18 @@ fn main() {
     let grid = Arc::new(Mutex::new(Grid::new(width, height, ui)));
 
     grid.lock().unwrap().init();
-    
-    
-    // let grid_clone = Arc::clone(&grid);
-    // thread::spawn(move || {
-    //     loop {
-    //         thread::sleep(Duration::from_secs(1));
-    //         let mut grid = grid_clone.lock().unwrap();
-    //         grid.move_monster();
-    //         grid.display();
-    //     }
-    // });
-    
-    // grid.lock().unwrap().display();
+
+    let grid_clone = Arc::clone(&grid);
+    thread::spawn(move || {
+        loop {
+            thread::sleep(Duration::from_secs(1));
+            let mut grid = grid_clone.lock().unwrap();
+            grid.move_monster();
+            grid.display();
+        }
+    });
+
+    grid.lock().unwrap().display();
     loop {
         let mut grid = grid.lock().unwrap();
         if grid.has_won() {
@@ -45,8 +44,7 @@ fn main() {
             ui::display_game_over_message();
             break;
         }
-        
-        
+
         if let Err(e) = enable_raw_mode() {
             eprintln!("Erreur lors de l'activation du mode brut: {}", e);
             continue;
@@ -65,17 +63,22 @@ fn main() {
         if let Err(e) = disable_raw_mode() {
             eprintln!("Erreur lors de la désactivation du mode brut: {}", e);
         }
-        
+
         if movement == 'c' {
             ui::display_suicide_message();
             std::process::exit(0);
         }
-        
+
         grid.move_player(movement);
-        // grid.move_monster();
         grid.display();
+        grid.check_for_monster();
         grid.check_for_item();
         grid.check_for_equipment();
+
+        grid.move_monster();
+        grid.display();
         grid.check_for_monster();
+        grid.check_for_item();
+        grid.check_for_equipment();
     }
 }

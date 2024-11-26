@@ -318,38 +318,49 @@ impl Grid {
      */
     pub fn move_monster(&mut self) {
         let player_position = self.player.get_position();
-        let mut new_positions = vec![];
+        let mut new_positions = Vec::new();
+        let monster_positions: Vec<_> = self
+            .monsters
+            .get_all_mut()
+            .iter()
+            .map(|m| m.get_position())
+            .collect();
 
-        let mut a = false;
-        while !a {
-            for monster in self.monsters.get_all_mut() {
-                let (mx, my) = monster.get_position();
-                let (px, py) = player_position;
+        for (i, monster) in self.monsters.get_all_mut().iter_mut().enumerate() {
+            let (mx, my) = monster_positions[i];
+            let (px, py) = player_position;
 
-                let new_position = if mx < px {
-                    (mx + 1, my)
-                } else if mx > px {
-                    (mx - 1, my)
-                } else if my < py {
-                    (mx, my + 1)
-                } else if my > py {
-                    (mx, my - 1)
-                } else {
-                    (mx, my)
-                };
+            let mut possible_moves = Vec::new();
 
-                if !self.walls.contains(&new_position) {
-                    new_positions.push((monster.get_position(), new_position));
-                    a = true;
-                }
+            // Check each possible move and ensure it is within grid boundaries
+            if mx + 1 < self.width {
+                possible_moves.push((mx + 1, my));
             }
-        }
+            if mx > 0 {
+                possible_moves.push((mx - 1, my));
+            }
+            if my + 1 < self.height {
+                possible_moves.push((mx, my + 1));
+            }
+            if my > 0 {
+                possible_moves.push((mx, my - 1));
+            }
 
-        for (old_position, new_position) in new_positions {
-            if new_position == player_position {
-                self.check_for_monster();
+            // Filter out moves that are blocked by walls or other monsters
+            possible_moves.retain(|&(nx, ny)| {
+                !self.walls.contains(&(nx, ny))
+                    && !new_positions.contains(&(nx, ny))
+                    && !monster_positions.contains(&(nx, ny))
+            });
+
+            // Choose the move that gets the monster closest to the player
+            if let Some(&(nx, ny)) = possible_moves.iter().min_by_key(|&&(nx, ny)| {
+                ((nx as isize - px as isize).abs() + (ny as isize - py as isize).abs()) as usize
+            }) {
+                new_positions.push((nx, ny));
+                monster.set_position((nx, ny));
             } else {
-                self.monsters.get_mut(old_position).unwrap().set_position(new_position);
+                new_positions.push((mx, my));
             }
         }
     }
@@ -366,6 +377,7 @@ impl Grid {
                 return;
             }
         };
+
         if !self.walls.contains(&new_position) {
             self.player.set_position(new_position);
         } else {

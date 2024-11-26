@@ -17,8 +17,8 @@ fn main() {
     println!("Votre mission : Atteignez l'artefact caché dans le labyrinthe, mais prennez garde aux monstres !");
     println!("Des artefacts secondaires peuvent vous aider à survivre...\n");
 
-    let width = 11;
-    let height = 11;
+    let width = 31;
+    let height = 31;
     let mut grid = Grid::new(width, height);
 
     grid.init();

@@ -68,7 +68,7 @@ impl Grid {
         self.place_walls();
         self.place_items((self.width * self.height) / 50);
         self.place_equipments((self.width * self.height) / 50);
-        self.place_monsters((self.width * self.height) / 1000);
+        self.place_monsters((self.width * self.height) / 30);
     }
 
     /**

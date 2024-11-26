@@ -91,7 +91,7 @@ impl UI {
         monster_name: &str,
         monster_health: i32,
     ) {
-        let combat_intro = "------ ⚔️ Combat ⚔️ ------";
+        let combat_intro = "------ ❌ Combat ❌ ------";
         let combat_info = format!(
             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
             turn,

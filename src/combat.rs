@@ -28,7 +28,9 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> 
             }) => c,
             _ => continue,
         };
-        disable_raw_mode().unwrap();
+        if let Err(e) = disable_raw_mode() {
+            eprintln!("Erreur lors de la désactivation du mode brut: {}", e);
+        }
 
         match action {
             'a' => {

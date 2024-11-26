@@ -3,11 +3,11 @@ use rand::Rng;
 use std::collections::HashSet;
 
 use crate::combat;
-use crate::entities::entity::{Entity, EntityTrait};
-use crate::entities::monster::{self, Monster, MonsterManager};
+use crate::entities::entity::EntityTrait;
+use crate::entities::monster::{self, MonsterManager};
 use crate::entities::player::Player;
 
-use crate::equipments::equipment::{self, Equipment, EquipmentManager, EquipmentType};
+use crate::equipments::equipment::{Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
 use crate::ui::{self, UI};
 
@@ -72,7 +72,7 @@ impl Grid {
         self.place_walls();
         self.place_items((self.width * self.height) / 50);
         self.place_equipments((self.width * self.height) / 50);
-        self.place_monsters((self.width * self.height) / 30);
+        self.place_monsters((self.width * self.height) / 100);
         self.update_ui();
     }
 
@@ -223,60 +223,9 @@ impl Grid {
      * @param player Le joueur actuel
      */
     pub fn display(&mut self) {
-        // println!(
-        //     "Carte ({} : joueur, {} : artefact, {} : objet, {} : ennemi, {} : mur) : \n",
-        //     self.player.get_icon(),
-        //     GOAL_ICON,
-        //     DEFAULT_ITEM_ICON,
-        //     DEFAULT_ENEMY_ICON,
-        //     WALL_ICON,
-        // );
-
         self.build_map();
         self.update_ui();
         self.ui.display_game_view();
-
-        // let mut item_counts = std::collections::HashMap::new();
-        // for item in self.player.get_items() {
-        //     let entry = item_counts.entry(item.get_name()).or_insert((
-        //         item.get_icon(),
-        //         item.get_description(),
-        //         0,
-        //     ));
-        //     entry.2 += 1;
-        // }
-
-        // for y in 0..self.height {
-        //     for x in 0..self.width {
-        //         print!("{}", self.map_to_display[x][y]);
-        //     }
-        //     // Print player's equipment to the right of the maze
-        //     if y == 0 {
-        //         print!("\tEquipments:");
-        //     } else if y <= self.player.get_equipment().len() {
-        //         if let Some(equipment) = self.player.get_equipment().get(y - 1) {
-        //             print!(
-        //                 "\t\t{}: {}, {}",
-        //                 equipment.get_icon(),
-        //                 equipment.get_name(),
-        //                 equipment.get_description()
-        //             );
-        //         }
-        //     } else if y == self.player.get_equipment().len() + 1 {
-        //         print!("\tItems:");
-        //     } else {
-        //         let item_index = y - self.player.get_equipment().len() - 2;
-        //         if item_index < item_counts.len() {
-        //             let (item_name, (item_icon, item_description, count)) =
-        //                 item_counts.iter().nth(item_index).unwrap();
-        //             print!(
-        //                 "\t\t{}: {} {}; {}",
-        //                 item_icon, count, item_name, item_description
-        //             );
-        //         }
-        //     }
-        //     println!();
-        // }
     }
 
     /**
@@ -291,7 +240,7 @@ impl Grid {
             .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
             as usize;
         let visibility_range = self.player.get_range();
-        if distance <= visibility_range && self.walls.contains(&position) {
+        if (distance <= visibility_range) && self.walls.contains(&position) {
             self.visible_walls.insert(position);
             true
         } else {
@@ -327,11 +276,11 @@ impl Grid {
                     } else {
                         if equipment.get_type() == EquipmentType::Hat {
                             self.player.set_range(5);
-                            self.player.set_icon("🤠");
+                            self.player.set_icon(PLAYER_WITH_HAT);
                         } else if equipment.get_type() == EquipmentType::Glasses
                             && !self.player.has_equipment(EquipmentType::Hat)
                         {
-                            self.player.set_icon("🤓");
+                            self.player.set_icon(PLAYER_WITH_GLASSES);
                         }
                         self.player.add_equipment(equipment.clone());
                     }
@@ -364,22 +313,41 @@ impl Grid {
      * Déplace le joueur en fonction de l'entrée utilisateur
      * @param player Le joueur actuel
      */
-    pub fn move_monster(&mut self, entity: &mut Entity, movement: char) {
-        let (x, y) = entity.get_position();
-        let new_position = match movement {
-            'z' if y > 0 => (x, y - 1),
-            'q' if x > 0 => (x - 1, y),
-            's' if y < self.height - 1 => (x, y + 1),
-            'd' if x < self.width - 1 => (x + 1, y),
-            _ => {
-                println!("Mouvement invalide");
-                return;
+    pub fn move_monster(&mut self) {
+        let player_position = self.player.get_position();
+        let mut new_positions = vec![];
+
+        let mut a = false;
+        while !a {
+            for monster in self.monsters.get_all_mut() {
+                let (mx, my) = monster.get_position();
+                let (px, py) = player_position;
+
+                let new_position = if mx < px {
+                    (mx + 1, my)
+                } else if mx > px {
+                    (mx - 1, my)
+                } else if my < py {
+                    (mx, my + 1)
+                } else if my > py {
+                    (mx, my - 1)
+                } else {
+                    (mx, my)
+                };
+
+                if !self.walls.contains(&new_position) {
+                    new_positions.push((monster.get_position(), new_position));
+                    a = true;
+                }
             }
-        };
-        if !self.walls.contains(&new_position) {
-            entity.set_position(new_position);
-        } else {
-            println!("\nVous ne pouvez pas traverser un mur !\n");
+        }
+
+        for (old_position, new_position) in new_positions {
+            if new_position == player_position {
+                self.check_for_monster();
+            } else {
+                self.monsters.get_mut(old_position).unwrap().set_position(new_position);
+            }
         }
     }
 
@@ -469,7 +437,7 @@ impl Grid {
 
         for item in items_within_range {
             let (x, y) = item.get_position();
-            if item.is_visible() {
+            if item.is_visible() && !self.monsters.is_position_occupied((x, y)) {
                 if self.player.has_equipment(EquipmentType::Glasses) {
                     self.map_to_display[x][y] = item.get_icon().to_string();
                 } else {

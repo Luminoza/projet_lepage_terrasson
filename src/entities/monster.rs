@@ -13,7 +13,6 @@ struct EntityData {
     description: String,
     hp: i32,
     atk: i32,
-    hostile: bool,
 }
 
 #[derive(Debug, Clone, serde::Deserialize, PartialEq, Eq, Hash)]
@@ -31,7 +30,6 @@ pub enum MonsterType {
 #[derive(Debug, Clone)]
 pub struct Monster {
     base: Entity,
-    monster_type: MonsterType,
 }
 
 pub fn get_random_monster(position: (usize, usize)) -> Monster {
@@ -66,10 +64,8 @@ impl Monster {
                 hp: entity_data.hp,
                 atk: entity_data.atk,
                 position,
-                hostile: true,
                 visible: true,
             },
-            monster_type: monster_type,
         }
     }
     pub fn attack(&self, target: &mut Player) {
@@ -82,7 +78,7 @@ impl EntityTrait for Monster {
         self.base.name.clone()
     }
 
-    fn get_icon(&self) -> String {
+    fn get_icon(&self) -> &str {
         self.base.get_icon()
     }
 
@@ -114,16 +110,8 @@ impl EntityTrait for Monster {
         self.base.entity_type
     }
 
-    fn is_hostile(&self) -> bool {
-        self.base.hostile
-    }
-
     fn is_visible(&self) -> bool {
         self.base.visible
-    }
-
-    fn set_hostile(&mut self, hostile: bool) {
-        self.base.hostile = hostile;
     }
 
     fn set_position(&mut self, position: (usize, usize)) {
@@ -140,5 +128,55 @@ impl EntityTrait for Monster {
 
     fn is_dead(&self) -> bool {
         self.base.is_dead()
+    }
+}
+
+pub struct MonsterManager {
+    monsters: Vec<Monster>,
+}
+
+impl MonsterManager {
+    pub fn new() -> MonsterManager {
+        MonsterManager {
+            monsters: Vec::new(),
+        }
+    }
+
+    pub fn add(&mut self, monster: Monster) {
+        self.monsters.push(monster);
+    }
+
+    pub fn get(&self, position: (usize, usize)) -> Option<&Monster> {
+        for monster in &self.monsters {
+            if monster.get_position() == position {
+                return Some(monster);
+            }
+        }
+        None
+    }
+
+        pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Monster> {
+        self.monsters.iter().filter(|monster| {
+            let (mx, my) = monster.get_position();
+            let (mx, my) = (mx as isize, my as isize);
+            let (px, py) = (position.0 as isize, position.1 as isize);
+            (px - mx).abs() <= range as isize && (py - my).abs() <= range as isize
+        }).collect()
+    }
+    pub fn is_position_occupied(&self, position: (usize, usize)) -> bool {
+        self.monsters.iter().any(|monster| monster.get_position() == position)
+    }
+
+    pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Monster> {
+        for monster in &mut self.monsters {
+            if monster.get_position() == position {
+                return Some(monster);
+            }
+        }
+        None
+    }
+
+    pub fn remove(&mut self, position: (usize, usize)) {
+        self.monsters.retain(|monster| monster.get_position() != position);
     }
 }

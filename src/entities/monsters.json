@@ -4,55 +4,48 @@
         "icon": "🐉",
         "description": "A mythical fire-breathing creature.",
         "hp": 200,
-        "atk": 50,
-        "hostile": true
+        "atk": 50
     },
     "Dino": {
         "name": "Dinosaure",
         "icon": "🦖",
         "description": "The Dinosaure is a powerful creature that can deal great damage.",
         "hp": 150,
-        "atk": 40,
-        "hostile": true
+        "atk": 40
     },
     "Whale": {
         "name": "Whale",
         "icon": "🐋",
         "description": "A large marine mammal.",
         "hp": 200,
-        "atk": 20,
-        "hostile": true
+        "atk": 20
     },
     "Mosquito": {
         "name": "Mosquito",
         "icon": "🦟",
         "description": "A small flying insect.",
         "hp": 10,
-        "atk": 30,
-        "hostile": true
+        "atk": 30
     },
     "Boar": {
         "name": "Boar",
         "icon": "🐗",
         "description": "A wild pig with tusks.",
         "hp": 100,
-        "atk": 20,
-        "hostile": true
+        "atk": 20
     },
     "Dodo": {
         "name": "Dodo",
         "icon": "🦤",
         "description": "An extinct flightless bird.",
         "hp": 80,
-        "atk": 15,
-        "hostile": true
+        "atk": 15
     },
     "Snail": {
         "name": "Snail",
         "icon": "🐌",
         "description": "A slow-moving mollusk.",
         "hp": 50,
-        "atk": 5,
-        "hostile": true
+        "atk": 5
     }
 }

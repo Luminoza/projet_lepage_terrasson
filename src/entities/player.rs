@@ -14,13 +14,13 @@ struct EntityData {
     description: String,
     hp: i32,
     atk: i32,
-    hostile: bool,
 }
 
 pub struct Player {
     base: Entity,
     equipments: Vec<Equipment>,
     items: Vec<Item>,
+    range: usize,
 }
 
 impl Player {
@@ -30,7 +30,7 @@ impl Player {
             serde_json::from_str(&data).expect("JSON was not well-formatted");
 
         let entity_data = entity_map.get("Player").expect("Player data not found");
-
+        let mut range = 2;
         Player {
             base: Entity {
                 name: entity_data.name.clone(),
@@ -40,11 +40,11 @@ impl Player {
                 hp: entity_data.hp,
                 atk: entity_data.atk,
                 position,
-                hostile: true,
                 visible: true,
             },
             equipments: Vec::new(),
             items: Vec::new(),
+            range,
         }
     }
 
@@ -100,6 +100,14 @@ impl Player {
     pub fn attack(&self, target: &mut Monster) {
         target.take_damage(self.get_attack());
     }
+
+    pub fn set_range(&mut self, range: usize){
+        self.range = range;
+    }
+
+    pub fn get_range(&self) -> usize{
+        self.range
+    }
 }
 
 impl EntityTrait for Player {
@@ -114,15 +122,11 @@ impl EntityTrait for Player {
         self.base.atk
     }
 
-    fn is_hostile(&self) -> bool {
-        self.base.hostile
-    }
-
     fn get_name(&self) -> String {
         self.base.get_name()
     }
 
-    fn get_icon(&self) -> String {
+    fn get_icon(&self) -> &str {
         self.base.get_icon()
     }
 
@@ -165,10 +169,6 @@ impl EntityTrait for Player {
 
     fn is_dead(&self) -> bool {
         self.base.is_dead()
-    }
-
-    fn set_hostile(&mut self, hostile: bool) {
-        self.base.set_hostile(hostile);
     }
 
     fn is_visible(&self) -> bool {

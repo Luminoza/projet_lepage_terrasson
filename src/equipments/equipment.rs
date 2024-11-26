@@ -44,7 +44,7 @@ impl Equipment {
             description: equipment_data.description.clone(),
             equipment_type,
             position,
-            visible: false,
+            visible: true,
             equiped: false,
         }
     }
@@ -53,8 +53,8 @@ impl Equipment {
         self.name.to_string()
     }
 
-    pub fn get_icon(&self) -> char {
-        self.icon.chars().next().unwrap()
+    pub fn get_icon(&self) -> &str {
+        self.icon.as_str()
     }
 
     pub fn get_description(&self) -> String {
@@ -97,4 +97,57 @@ impl Equipment {
     pub fn set_equiped(&mut self, equiped: bool) {
         self.equiped = equiped;
     }
+}
+
+
+pub struct EquipmentManager {
+    equipments: Vec<Equipment>,
+}
+
+impl EquipmentManager {
+    pub fn new() -> EquipmentManager {
+        EquipmentManager {
+            equipments: Vec::new(),
+        }
+    }
+
+    pub fn add(&mut self, equipment: Equipment) {
+        self.equipments.push(equipment);
+    }
+
+    pub fn get(&self, position: (usize, usize)) -> Option<&Equipment> {
+        for equipment in &self.equipments {
+            if equipment.get_position() == position {
+                return Some(equipment);
+            }
+        }
+        None
+    }
+
+    pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Equipment> {
+        self.equipments.iter().filter(|equipment| {
+            let (x, y) = equipment.get_position();
+            let (x, y) = (x , y );
+            let (px, py) = (position.0 , position.1 );
+            ((px as isize - x as isize).abs() as usize) <= range && ((py as isize - y as isize).abs() as usize) <= range
+        }).collect()
+    }
+
+    pub fn is_position_occupied(&self, position: (usize, usize)) -> bool {
+        self.equipments.iter().any(|equipment| equipment.get_position() == position)
+    }
+
+    pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Equipment> {
+        for equipment in &mut self.equipments {
+            if equipment.get_position() == position {
+                return Some(equipment);
+            }
+        }
+        None
+    }
+
+    pub fn remove(&mut self, position: (usize, usize)) {
+        self.equipments.retain(|equipment| equipment.get_position() != position);
+    }
+    
 }

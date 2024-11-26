@@ -4,17 +4,19 @@ use std::collections::HashSet;
 
 use crate::combat;
 use crate::entities::entity::{Entity, EntityTrait};
-use crate::entities::monster::{self, Monster};
+use crate::entities::monster::{self, Monster, MonsterManager};
 use crate::entities::player::Player;
 
-use crate::equipments::equipment::{Equipment, EquipmentType};
-use crate::items::item::{self, Item};
+use crate::equipments::equipment::{self, Equipment, EquipmentManager, EquipmentType};
+use crate::items::item::{Item, ItemManager, ItemType};
 
 const WALL_ICON: &str = "🟧";
 const NO_WALL_ICON: &str = "⬛️";
 const GOAL_ICON: &str = "👑";
 const DEFAULT_ITEM_ICON: &str = "🎁";
 const DEFAULT_ENEMY_ICON: &str = "💀";
+const PLAYER_WITH_HAT: &str = "🤠";
+const PLAYER_WITH_GLASSES: &str = "🤓";
 
 /// Structure représentant la grille de jeu
 pub struct Grid {
@@ -22,12 +24,13 @@ pub struct Grid {
     height: usize,
     player: Player,
     last_movement: char,
-    monsters: Vec<Monster>,
-    items: Vec<Item>,
-    equipments: Vec<Equipment>,
+    monsters: MonsterManager,
+    items: ItemManager,
+    equipments: EquipmentManager,
     goal: (usize, usize),
     walls: Vec<(usize, usize)>,
     visible_walls: HashSet<(usize, usize)>,
+    map_to_display: Vec<Vec<String>>,
 }
 
 impl Grid {
@@ -39,18 +42,25 @@ impl Grid {
      */
     pub fn new(width: usize, height: usize) -> Self {
         let mut rng = rand::thread_rng();
-        let goal = (rng.gen_range(width/2..width), rng.gen_range(height/2..height));
+        let goal = (
+            rng.gen_range(width / 2..width),
+            rng.gen_range(height / 2..height),
+        );
+
+        let map_to_display = vec![vec![NO_WALL_ICON.to_string(); width]; height];
+
         Grid {
             width,
             height,
             player: Player::new((0, 0)),
             last_movement: ' ',
-            monsters: vec![],
-            items: vec![],
-            equipments: vec![],
+            monsters: MonsterManager::new(),
+            items: ItemManager::new(),
+            equipments: EquipmentManager::new(),
             goal,
             walls: vec![],
             visible_walls: HashSet::new(),
+            map_to_display,
         }
     }
 
@@ -132,7 +142,7 @@ impl Grid {
 
                 if self.is_position_empty(position) {
                     self.items
-                        .push(Item::new(Item::random(), (position.0, position.1)));
+                        .add(Item::new(Item::random(), (position.0, position.1)));
                     break;
                 }
             }
@@ -150,7 +160,7 @@ impl Grid {
                 let position = (rng.gen_range(0..self.width), rng.gen_range(0..self.height));
 
                 if self.is_position_empty(position) {
-                    self.equipments.push(Equipment::new(
+                    self.equipments.add(Equipment::new(
                         Equipment::random(),
                         (position.0, position.1),
                     ));
@@ -171,7 +181,7 @@ impl Grid {
                 let position = (rng.gen_range(0..self.width), rng.gen_range(0..self.height));
                 if self.is_position_empty(position) {
                     self.monsters
-                        .push(monster::get_random_monster((position.0, position.1)));
+                        .add(monster::get_random_monster((position.0, position.1)));
                     break;
                 }
             }
@@ -180,25 +190,16 @@ impl Grid {
 
     /**
      * Vérifie si une position est vide (pas de mur, objet, ennemi, etc.)
-     * @param position La position à vérifier
+     * @param position La position �� vérifier
      * @return Vrai si la position est vide, sinon faux
      */
     fn is_position_empty(&self, position: (usize, usize)) -> bool {
         position != self.player.get_position()
             && position != self.goal
             && !self.walls.contains(&position)
-            && !self
-                .items
-                .iter()
-                .any(|item| item.get_position() == position)
-            && !self
-                .equipments
-                .iter()
-                .any(|equipment| equipment.get_position() == position)
-            && !self
-                .monsters
-                .iter()
-                .any(|monster| monster.get_position() == position)
+            && !self.equipments.is_position_occupied(position)
+            && !self.items.is_position_occupied(position)
+            && !self.monsters.is_position_occupied(position)
     }
 
     /**
@@ -214,56 +215,35 @@ impl Grid {
             DEFAULT_ENEMY_ICON,
             WALL_ICON,
         );
+
+        self.build_map();
+
         for y in 0..self.height {
             for x in 0..self.width {
-                if self.player.get_position() == (x, y) {
-                    if self.player.is_dead() {
-                        print!("💀");
-                    } else if self.player.has_equipment(EquipmentType::Hat) {
-                        print!("🤠");
-                    } else if self.player.has_equipment(EquipmentType::Glasses) {
-                        print!("🤓");
-                    } else {
-                        print!("{}", self.player.get_icon());
-                    }
-                } else if self.goal == (x, y) {
-                    print!("{}", GOAL_ICON);
-                } else if self.should_display_wall((x, y)) {
-                    print!("{}", WALL_ICON);
-                } else if self.should_display_item((x, y)) {
-                    if self.player.has_equipment(EquipmentType::Glasses) {
-                        for item in &self.items {
-                            if item.get_position() == (x, y) {
-                                if item.is_visible() {
-                                    print!("{}", item.get_icon());
-                                }
-                            }
-                        }
-                    } else {
-                        print!("{}", DEFAULT_ITEM_ICON);
-                    }
-                } else if self.should_display_equipment((x, y)) {
-                    if self.player.has_equipment(EquipmentType::Glasses) {
-                        for equipment in &self.equipments {
-                            if equipment.get_position() == (x, y) {
-                                if equipment.is_visible() {
-                                    print!("{}", equipment.get_icon());
-                                }
-                            }
-                        }
-                    } else {
-                        print!("{}", DEFAULT_ITEM_ICON);
-                    }
-                } else if self.should_display_monster((x, y)) {
-                    for monster in &self.monsters {
-                        if monster.get_position() == (x, y) {
-                            if monster.is_visible() {
-                                print!("{}", monster.get_icon());
-                            }
-                        }
-                    }
-                } else {
-                    print!("{}", NO_WALL_ICON);
+                print!("{}", self.map_to_display[x][y]);
+            }
+            // Print player's equipment to the right of the maze
+            if y == 0 {
+                print!("  Equipments:");
+            } else if y <= self.player.get_equipment().len() {
+                if let Some(equipment) = self.player.get_equipment().get(y - 1) {
+                    print!(
+                        "  {}: {}, {}",
+                        equipment.get_icon(),
+                        equipment.get_name(),
+                        equipment.get_description()
+                    );
+                }
+            } else if y == self.player.get_equipment().len() + 1 {
+                print!("  Items:");
+            } else {
+                if let Some(item) = self.player.get_items().get(y - self.player.get_equipment().len() - 2) {
+                    print!(
+                        "  {}: {}, {}",
+                        item.get_icon(),
+                        item.get_name(),
+                        item.get_description()
+                    );
                 }
             }
             println!();
@@ -281,11 +261,7 @@ impl Grid {
             .abs()
             .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
             as usize;
-        let visibility_range = if self.player.has_equipment(EquipmentType::Hat) {
-            5
-        } else {
-            2
-        };
+        let visibility_range = self.player.get_range();
         if distance <= visibility_range && self.walls.contains(&position) {
             self.visible_walls.insert(position);
             true
@@ -295,109 +271,17 @@ impl Grid {
     }
 
     /**
-     * Vérifie si un objet doit être affiché
-     * @param player Le joueur actuel
-     * @param position La position de l'objet
-     * @return Vrai si l'objet doit être affiché, sinon faux
-     */
-    fn should_display_item(&mut self, position: (usize, usize)) -> bool {
-        let distance = ((self.player.get_position().0 as isize - position.0 as isize)
-            .abs()
-            .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
-            as usize;
-
-        let visibility_range = if self.player.has_equipment(EquipmentType::Hat) {
-            5
-        } else {
-            2
-        };
-
-        let mut should_display = false;
-
-        for item in &mut self.items {
-            if item.get_position() == position {
-                if distance <= visibility_range && item.is_visible() == true {
-                    should_display = true;
-                } else {
-                    item.set_visible(false);
-                }
-            }
-        }
-        should_display
-    }
-
-    /**
-     * Vérifie si un objet doit être affiché
-     * @param player Le joueur actuel
-     * @param position La position de l'objet
-     * @return Vrai si l'objet doit être affiché, sinon faux
-     */
-    fn should_display_equipment(&mut self, position: (usize, usize)) -> bool {
-        let distance = ((self.player.get_position().0 as isize - position.0 as isize)
-            .abs()
-            .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
-            as usize;
-        let visibility_range = if self.player.has_equipment(EquipmentType::Hat) {
-            5
-        } else {
-            2
-        };
-
-        let mut should_display = false;
-
-        for equipment in &mut self.equipments {
-            if equipment.get_position() == position && equipment.is_visible() == true {
-                if distance <= visibility_range {
-                    equipment.set_visible(true);
-                    should_display = true;
-                } else {
-                    equipment.set_visible(false);
-                }
-            }
-        }
-        should_display
-    }
-
-    /**
-     * Vérifie si un ennemi doit être affiché
-     * @param player Le joueur actuel
-     * @param position La position de l'ennemi
-     * @return Vrai si l'ennemi doit être affiché, sinon faux
-     */
-    fn should_display_monster(&mut self, position: (usize, usize)) -> bool {
-        let distance = ((self.player.get_position().0 as isize - position.0 as isize)
-            .abs()
-            .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
-            as usize;
-        let visibility_range = if self.player.has_equipment(EquipmentType::Hat) {
-            5
-        } else {
-            2
-        };
-
-        let mut should_display = false;
-        for monster in &mut self.monsters {
-            if monster.get_position() == position {
-                if distance <= visibility_range && !monster.is_dead(){
-                    monster.set_visible(true);
-                    should_display = true;
-                } else {
-                    monster.set_visible(false);
-                }
-            }
-        }
-        should_display
-    }
-
-    /**
      * Supprime l'objet à la position du joueur
      */
     pub fn check_for_item(&mut self) {
-        for item in &mut self.items {
+        if let Some(item) = self.items.get_mut(self.player.get_position()) {
             if item.get_position() == self.player.get_position() {
-                self.player.add_item(item.clone());
-                item.set_visible(false);
-                item.set_equiped(true);
+                if !item.is_equiped(){
+                    
+                    self.player.add_item(item.clone());
+                    item.set_visible(false);
+                    item.set_equiped(true);
+                }
             }
         }
     }
@@ -406,11 +290,16 @@ impl Grid {
      * Supprime l'objet à la position du joueur
      */
     pub fn check_for_equipment(&mut self) {
-        for equipment in &mut self.equipments {
+        if let Some(equipment) = self.equipments.get_mut(self.player.get_position()) {
             if equipment.get_position() == self.player.get_position() {
-                self.player.add_equipment(equipment.clone());
-                equipment.set_visible(false);
-                equipment.set_equiped(true);
+                if equipment.is_equiped() {
+                    self.player
+                        .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()));
+                } else {
+                    self.player.add_equipment(equipment.clone());
+                    equipment.set_visible(false);
+                    equipment.set_equiped(true);
+                }
             }
         }
     }
@@ -420,21 +309,18 @@ impl Grid {
      */
     pub fn check_for_monster(&mut self) {
         let mut flee = false;
-        for monster in &mut self.monsters {
-            if monster.get_position() == self.player.get_position()
-                && monster.is_visible()
-                && monster.is_hostile()
-            {
+
+        if self.monsters.get_mut(self.player.get_position()).is_none() {
+            return;
+        } else {
+            let monster = self.monsters.get_mut(self.player.get_position()).unwrap();
+            if monster.get_position() == self.player.get_position() && monster.is_visible() {
                 if combat::start_combat(&mut self.player, &mut *monster) {
                     monster.set_visible(false);
-                    monster.set_hostile(false);
                 } else {
-                    flee = true;
+                    self.flee();
                 }
             }
-        }
-        if flee {
-            self.flee();
         }
     }
 
@@ -442,8 +328,8 @@ impl Grid {
      * Déplace le joueur en fonction de l'entrée utilisateur
      * @param player Le joueur actuel
      */
-    pub fn move_entity(&mut self, entity: &mut Entity, movement: char) {
-        let (mut x, mut y) = entity.get_position();
+    pub fn move_monster(&mut self, entity: &mut Entity, movement: char) {
+        let (x, y) = entity.get_position();
         let new_position = match movement {
             'z' if y > 0 => (x, y - 1),
             'q' if x > 0 => (x - 1, y),
@@ -462,7 +348,7 @@ impl Grid {
     }
 
     pub fn move_player(&mut self, movement: char) {
-        let (mut x, mut y) = self.player.get_position();
+        let (x, y) = self.player.get_position();
         let new_position = match movement {
             'z' if y > 0 => (x, y - 1),
             'q' if x > 0 => (x - 1, y),
@@ -485,7 +371,7 @@ impl Grid {
      * Gère la fuite lors d'un combat
      */
     pub fn flee(&mut self) {
-        let movement = match self.last_movement {
+        match self.last_movement {
             'z' => self.move_player('s'),
             'q' => self.move_player('d'),
             's' => self.move_player('z'),
@@ -511,6 +397,75 @@ impl Grid {
             true
         } else {
             false
+        }
+    }
+
+    pub fn build_map(&mut self) {
+        let mut position;
+        {
+            for y in 0..self.height {
+                for x in 0..self.width {
+                    position = (x, y);
+                    if self.should_display_wall(position) {
+                        self.map_to_display[x][y] = WALL_ICON.to_string();
+                    } else if self.player.get_position() == position {
+                        if self.player.has_equipment(EquipmentType::Hat) {
+                            self.map_to_display[x][y] = PLAYER_WITH_HAT.to_string();
+                        } else if self.player.has_equipment(EquipmentType::Glasses) {
+                            self.map_to_display[x][y] = PLAYER_WITH_GLASSES.to_string();
+                        } else {
+                            self.map_to_display[x][y] = self.player.get_icon().to_string();
+                        }
+                    } else if self.goal == position {
+                        self.map_to_display[x][y] = GOAL_ICON.to_string();
+                    } else {
+                        self.map_to_display[x][y] = NO_WALL_ICON.to_string();
+                    }
+                }
+            }
+        }
+        let equipment_within_range = self
+            .equipments
+            .within_range(self.player.get_position(), self.player.get_range());
+
+        let monsters_within_range = self
+            .monsters
+            .within_range(self.player.get_position(), self.player.get_range());
+
+        let items_within_range = self
+            .items
+            .within_range(self.player.get_position(), self.player.get_range());
+
+        for item in items_within_range {
+            let (x, y) = item.get_position();
+            if item.is_visible() {
+                if self.player.has_equipment(EquipmentType::Glasses) {
+                    self.map_to_display[x][y] = item.get_icon().to_string();
+                } else {
+                    self.map_to_display[x][y] = DEFAULT_ITEM_ICON.to_string();
+                }
+            }
+        }
+
+        for equipment in equipment_within_range {
+            if equipment.is_visible() {
+                if self.player.has_equipment(EquipmentType::Glasses) {
+                    self.map_to_display[equipment.get_position().0][equipment.get_position().1] =
+                        equipment.get_icon().to_string();
+                } else {
+                    self.map_to_display[equipment.get_position().0][equipment.get_position().1] =
+                        DEFAULT_ITEM_ICON.to_string();
+                }
+            }
+        }
+
+        for monster in monsters_within_range {
+            if monster.is_visible() {
+                println!("{:?}", monster.get_icon());
+                println!("{:?}", monster.get_name());
+                self.map_to_display[monster.get_position().0][monster.get_position().1] =
+                    monster.get_icon().to_string();
+            }
         }
     }
 }

@@ -16,22 +16,19 @@ pub struct Entity {
     pub hp: i32,
     pub atk: i32,
     pub position: (usize, usize),
-    pub hostile: bool,
     pub visible: bool,
 }
 
 pub trait EntityTrait {
     fn get_name(&self) -> String;
-    fn get_icon(&self) -> String;
+    fn get_icon(&self) -> &str;
     fn get_description(&self) -> String;
-    fn is_hostile(&self) -> bool;
     fn get_attack(&self) -> i32;
     fn get_health(&self) -> i32;
     fn get_position(&self) -> (usize, usize);
     fn get_type(&self) -> EntityType;
     fn is_visible(&self) -> bool;
     fn set_visible(&mut self, visible: bool);
-    fn set_hostile(&mut self, hostile: bool);
     fn set_position(&mut self, position: (usize, usize));
     fn heal(&mut self, heal: i32);
     fn buff_attack(&mut self, buff: i32);
@@ -44,16 +41,12 @@ impl EntityTrait for Entity {
         self.name.to_string()
     }
 
-    fn get_icon(&self) -> String {
-        self.icon.to_string()
+    fn get_icon(&self) -> &str {
+        &self.icon
     }
 
     fn get_description(&self) -> String {
         self.description.to_string()
-    }
-
-    fn is_hostile(&self) -> bool {
-        self.hostile
     }
 
     fn get_attack(&self) -> i32 {
@@ -78,10 +71,6 @@ impl EntityTrait for Entity {
 
     fn set_visible(&mut self, visible: bool) {
         self.visible = visible
-    }
-
-    fn set_hostile(&mut self, hostile: bool) {
-        self.hostile = hostile
     }
 
     fn set_position(&mut self, position: (usize, usize)) {

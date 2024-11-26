@@ -50,7 +50,7 @@ impl Item {
     }
 
     pub fn get_icon(&self) -> &str {
-        &self.icon
+        self.icon.as_str()
     }
 
     pub fn get_description(&self) -> &str {
@@ -92,5 +92,56 @@ impl Item {
 
     pub fn set_equiped(&mut self, equiped: bool) {
         self.equiped = equiped;
+    }
+}
+
+pub struct ItemManager {
+    items: Vec<Item>,
+}
+
+impl ItemManager {
+    pub fn new() -> ItemManager {
+        ItemManager { items: Vec::new() }
+    }
+
+    pub fn add(&mut self, item: Item) {
+        self.items.push(item);
+    }
+
+    pub fn get(&self, position: (usize, usize)) -> Option<&Item> {
+        for item in &self.items {
+            if item.get_position() == position {
+                return Some(item);
+            }
+        }
+        None
+    }
+
+    pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Item> {
+        self.items
+            .iter()
+            .filter(|item| {
+                let (x, y) = item.get_position();
+                (x as i32 - position.0 as i32).abs() <= range as i32
+                    && (y as i32 - position.1 as i32).abs() <= range as i32
+            })
+            .collect()
+    }
+
+    pub fn is_position_occupied(&self, position: (usize, usize)) -> bool {
+        self.items.iter().any(|item| item.get_position() == position)
+    }
+
+    pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Item> {
+        for item in &mut self.items {
+            if item.get_position() == position {
+                return Some(item);
+            }
+        }
+        None
+    }
+
+    pub fn remove(&mut self, position: (usize, usize)) {
+        self.items.retain(|item| item.get_position() != position);
     }
 }

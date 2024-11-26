@@ -167,4 +167,8 @@ impl MonsterManager {
         None
     }
 
+    pub fn get_all_mut(&mut self) -> &mut Vec<Monster> {
+        &mut self.monsters
+    }
+
 }

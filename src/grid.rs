@@ -3,7 +3,7 @@ use rand::Rng;
 use std::collections::HashSet;
 
 use crate::combat;
-use crate::entities::entity::{Entity, EntityTrait};
+use crate::entities::entity::EntityTrait;
 use crate::entities::monster::{self, MonsterManager};
 use crate::entities::player::Player;
 
@@ -278,7 +278,7 @@ impl Grid {
             .max((self.player.get_position().1 as isize - position.1 as isize).abs()))
             as usize;
         let visibility_range = self.player.get_range();
-        if distance <= visibility_range && self.walls.contains(&position) {
+        if (distance <= visibility_range) && self.walls.contains(&position) {
             self.visible_walls.insert(position);
             true
         } else {
@@ -351,22 +351,41 @@ impl Grid {
      * Déplace le joueur en fonction de l'entrée utilisateur
      * @param player Le joueur actuel
      */
-    pub fn move_monster(&mut self, entity: &mut Entity, movement: char) {
-        let (x, y) = entity.get_position();
-        let new_position = match movement {
-            'z' if y > 0 => (x, y - 1),
-            'q' if x > 0 => (x - 1, y),
-            's' if y < self.height - 1 => (x, y + 1),
-            'd' if x < self.width - 1 => (x + 1, y),
-            _ => {
-                println!("Mouvement invalide");
-                return;
+    pub fn move_monster(&mut self) {
+        let player_position = self.player.get_position();
+        let mut new_positions = vec![];
+
+        let mut a = false;
+        while !a {
+            for monster in self.monsters.get_all_mut() {
+                let (mx, my) = monster.get_position();
+                let (px, py) = player_position;
+
+                let new_position = if mx < px {
+                    (mx + 1, my)
+                } else if mx > px {
+                    (mx - 1, my)
+                } else if my < py {
+                    (mx, my + 1)
+                } else if my > py {
+                    (mx, my - 1)
+                } else {
+                    (mx, my)
+                };
+
+                if !self.walls.contains(&new_position) {
+                    new_positions.push((monster.get_position(), new_position));
+                    a = true;
+                }
             }
-        };
-        if !self.walls.contains(&new_position) {
-            entity.set_position(new_position);
-        } else {
-            println!("\nVous ne pouvez pas traverser un mur !\n");
+        }
+
+        for (old_position, new_position) in new_positions {
+            if new_position == player_position {
+                self.check_for_monster();
+            } else {
+                self.monsters.get_mut(old_position).unwrap().set_position(new_position);
+            }
         }
     }
 
@@ -455,7 +474,7 @@ impl Grid {
 
         for item in items_within_range {
             let (x, y) = item.get_position();
-            if item.is_visible() {
+            if item.is_visible() && !self.monsters.is_position_occupied((x, y)) {
                 if self.player.has_equipment(EquipmentType::Glasses) {
                     self.map_to_display[x][y] = item.get_icon().to_string();
                 } else {

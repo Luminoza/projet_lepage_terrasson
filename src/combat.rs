@@ -17,8 +17,9 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster) -> bool {
         if player.get_items().len() > 0 {
             println!("\nInventaire : vous avez {} potions de soin", player.get_items().len());
             println!("\na : Attaquer, p : Utiliser une potion, f : Fuir");
+        } else {
+            println!("\na : Attaquer, f : Fuir");
         }
-        println!("\na : Attaquer, f : Fuir");
 
         if let Err(e) = enable_raw_mode() {
             eprintln!("Erreur lors de l'activation du mode brut: {}", e);

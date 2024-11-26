@@ -19,23 +19,23 @@ fn main() {
 
     let width = 31;
     let height = 31;
-    let mut ui = ui::UI::new(width, height);
+    let ui = ui::UI::new(width, height);
     let grid = Arc::new(Mutex::new(Grid::new(width, height, ui)));
 
     grid.lock().unwrap().init();
     
     
-    let grid_clone = Arc::clone(&grid);
-    thread::spawn(move || {
-        loop {
-            thread::sleep(Duration::from_secs(1));
-            let mut grid = grid_clone.lock().unwrap();
-            grid.move_monster();
-            grid.display();
-        }
-    });
+    // let grid_clone = Arc::clone(&grid);
+    // thread::spawn(move || {
+    //     loop {
+    //         thread::sleep(Duration::from_secs(1));
+    //         let mut grid = grid_clone.lock().unwrap();
+    //         grid.move_monster();
+    //         grid.display();
+    //     }
+    // });
     
-    grid.lock().unwrap().display();
+    // grid.lock().unwrap().display();
     loop {
         let mut grid = grid.lock().unwrap();
         if grid.has_won() {
@@ -72,9 +72,10 @@ fn main() {
         }
         
         grid.move_player(movement);
+        // grid.move_monster();
+        grid.display();
         grid.check_for_item();
         grid.check_for_equipment();
         grid.check_for_monster();
-        grid.display();
     }
 }

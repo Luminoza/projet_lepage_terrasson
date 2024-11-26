@@ -1,4 +1,4 @@
-use rand::prelude::SliceRandom;
+use rand::prelude::*;
 use rand::Rng;
 use std::collections::HashSet;
 
@@ -15,9 +15,10 @@ const WALL_ICON: &str = "🟧";
 const NO_WALL_ICON: &str = "⬛️";
 const GOAL_ICON: &str = "👑";
 const DEFAULT_ITEM_ICON: &str = "🎁";
-const DEFAULT_ENEMY_ICON: &str = "💀";
+const DEAD_PLAYER_ICON: &str = "💀";
 const PLAYER_WITH_HAT: &str = "🤠";
 const PLAYER_WITH_GLASSES: &str = "🤓";
+const COMBAT_ICON: &str = "❌";
 
 /// Structure représentant la grille de jeu
 pub struct Grid {
@@ -78,7 +79,8 @@ impl Grid {
 
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
-        self.ui.update_equipments(self.player.get_equipment().clone());
+        self.ui
+            .update_equipments(self.player.get_equipment().clone());
         self.ui.update_items(self.player.get_items().clone());
     }
 
@@ -304,6 +306,7 @@ impl Grid {
                     monster.set_visible(false);
                 } else {
                     self.flee();
+                    self.display();
                 }
             }
         }
@@ -354,10 +357,10 @@ impl Grid {
     pub fn move_player(&mut self, movement: char) {
         let (x, y) = self.player.get_position();
         let new_position = match movement {
-            'z' if y > 0 => (x, y - 1), // Move up
-            'q' if x > 0 => (x - 1, y), // Move left
+            'z' if y > 0 => (x, y - 1),               // Move up
+            'q' if x > 0 => (x - 1, y),               // Move left
             's' if y < self.height - 1 => (x, y + 1), // Move down
-            'd' if x < self.width - 1 => (x + 1, y), // Move right
+            'd' if x < self.width - 1 => (x + 1, y),  // Move right
             _ => {
                 ui::display_invalid_movement_message();
                 return;
@@ -414,7 +417,11 @@ impl Grid {
                     if self.should_display_wall(position) {
                         self.map_to_display[x][y] = WALL_ICON.to_string();
                     } else if self.player.get_position() == position {
-                        self.map_to_display[x][y] = self.player.get_icon().to_string();
+                        if self.player.is_dead() {
+                            self.map_to_display[x][y] = DEAD_PLAYER_ICON.to_string();
+                        } else {
+                            self.map_to_display[x][y] = self.player.get_icon().to_string();
+                        }
                     } else if self.goal == position {
                         self.map_to_display[x][y] = GOAL_ICON.to_string();
                     } else {
@@ -423,6 +430,7 @@ impl Grid {
                 }
             }
         }
+
         let equipment_within_range = self
             .equipments
             .within_range(self.player.get_position(), self.player.get_range());
@@ -436,18 +444,25 @@ impl Grid {
             .within_range(self.player.get_position(), self.player.get_range());
 
         for item in items_within_range {
-            let (x, y) = item.get_position();
-            if item.is_visible() && !self.monsters.is_position_occupied((x, y)) {
+            if item.is_visible()
+                && !self.monsters.is_position_occupied(item.get_position())
+                && self.player.get_position() != item.get_position()
+            {
                 if self.player.has_equipment(EquipmentType::Glasses) {
-                    self.map_to_display[x][y] = item.get_icon().to_string();
+                    self.map_to_display[item.get_position().0][item.get_position().1] =
+                        item.get_icon().to_string();
                 } else {
-                    self.map_to_display[x][y] = DEFAULT_ITEM_ICON.to_string();
+                    self.map_to_display[item.get_position().0][item.get_position().1] =
+                        DEFAULT_ITEM_ICON.to_string();
                 }
             }
         }
 
         for equipment in equipment_within_range {
-            if equipment.is_visible() {
+            if equipment.is_visible()
+                && !self.monsters.is_position_occupied(equipment.get_position())
+                && self.player.get_position() != equipment.get_position()
+            {
                 if self.player.has_equipment(EquipmentType::Glasses) {
                     self.map_to_display[equipment.get_position().0][equipment.get_position().1] =
                         equipment.get_icon().to_string();
@@ -460,8 +475,13 @@ impl Grid {
 
         for monster in monsters_within_range {
             if monster.is_visible() {
-                self.map_to_display[monster.get_position().0][monster.get_position().1] =
-                    monster.get_icon().to_string();
+                if self.player.get_position() == monster.get_position() {
+                    self.map_to_display[monster.get_position().0][monster.get_position().1] =
+                        COMBAT_ICON.to_string();
+                } else {
+                    self.map_to_display[monster.get_position().0][monster.get_position().1] =
+                        monster.get_icon().to_string();
+                }
             }
         }
     }

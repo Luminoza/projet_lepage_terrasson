@@ -308,8 +308,6 @@ impl Grid {
      * Supprime l'ennemi à la position du joueur
      */
     pub fn check_for_monster(&mut self) {
-        let mut flee = false;
-
         if self.monsters.get_mut(self.player.get_position()).is_none() {
             return;
         } else {
@@ -461,8 +459,6 @@ impl Grid {
 
         for monster in monsters_within_range {
             if monster.is_visible() {
-                println!("{:?}", monster.get_icon());
-                println!("{:?}", monster.get_name());
                 self.map_to_display[monster.get_position().0][monster.get_position().1] =
                     monster.get_icon().to_string();
             }

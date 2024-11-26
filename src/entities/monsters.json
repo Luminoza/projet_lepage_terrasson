@@ -34,10 +34,10 @@
         "hp": 100,
         "atk": 20
     },
-    "Dodo": {
-        "name": "Dodo",
-        "icon": "🦤",
-        "description": "An extinct flightless bird.",
+    "Turkey": {
+        "name": "Turkey",
+        "icon": "🦃",
+        "description": "A large bird native to North America.",
         "hp": 80,
         "atk": 15
     },

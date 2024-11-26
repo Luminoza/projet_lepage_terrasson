@@ -19,7 +19,7 @@ struct EntityData {
 pub enum MonsterType {
     Player,
     Dino,
-    Dodo,
+    Turkey,
     Boar,
     Snail,
     Mosquito,
@@ -40,7 +40,7 @@ pub fn get_random_monster(position: (usize, usize)) -> Monster {
         2 => Monster::new(MonsterType::Whale, position),
         3 => Monster::new(MonsterType::Mosquito, position),
         4 => Monster::new(MonsterType::Boar, position),
-        5 => Monster::new(MonsterType::Dodo, position),
+        5 => Monster::new(MonsterType::Turkey, position),
         6 => Monster::new(MonsterType::Snail, position),
         _ => Monster::new(MonsterType::Snail, position),
     }

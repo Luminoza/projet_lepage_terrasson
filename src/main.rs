@@ -70,9 +70,13 @@ fn main() {
         }
 
         grid.move_player(movement);
+        grid.display();
+        grid.check_for_combat(true);
+        grid.check_for_item();
+        grid.check_for_equipment();
 
 
         grid.move_monster();
-
+     
     }
 }

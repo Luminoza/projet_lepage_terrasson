@@ -9,7 +9,7 @@ use crate::entities::player::Player;
 
 use crate::equipments::equipment::{Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
-use crate::ui::{self, UI};
+use crate::ui::UI;
 
 const WALL_ICON: &str = "🟧";
 const NO_WALL_ICON: &str = "⬛️";
@@ -229,7 +229,12 @@ impl Grid {
     pub fn display(&mut self) {
         self.build_map();
         self.update_ui();
-        self.ui.display_game_view();
+        self.ui.display_game_view_and_message(vec![
+            "".to_string(),
+            "--------------------- Déplacement ----------------------".to_string(),
+            "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
+            "\tEntrez votre déplacement".to_string(),
+        ]);
     }
 
     /**
@@ -310,7 +315,6 @@ impl Grid {
                     if can_flee {
                         self.flee();
                     }
-                    self.display();
                 }
             }
         }
@@ -367,15 +371,12 @@ impl Grid {
                     new_positions.push((mx, my));
                 }
             }
+            self.display();
+            self.check_for_combat(false);
         }
-        self.display();
-        self.check_for_combat(false);
-        self.check_for_item();
-        self.check_for_equipment();
     }
 
     pub fn move_player(&mut self, movement: char) {
-        self.just_flee = false;
         let (x, y) = self.player.get_position();
         let new_position = match movement {
             'z' if y > 0 => (x, y - 1),               // Move up
@@ -383,7 +384,10 @@ impl Grid {
             's' if y < self.height - 1 => (x, y + 1), // Move down
             'd' if x < self.width - 1 => (x + 1, y),  // Move right
             _ => {
-                ui::display_invalid_movement_message();
+                self.ui.display_game_view_and_message(vec![
+                    "------------------ Déplacement -------------------".to_string(),
+                    "\tMouvement invalide".to_string(),
+                ]);
                 return;
             }
         };
@@ -391,14 +395,13 @@ impl Grid {
         if !self.walls.contains(&new_position) {
             self.player.set_position(new_position);
         } else {
-            ui::display_wall_message();
+            self.ui.display_game_view_and_message(vec![
+                "------------------ Déplacement -------------------".to_string(),
+                "\tVous ne pouvez pas traverser un mur !".to_string(),
+            ]);
         }
         self.last_movement = movement;
-        self.update_ui();
-        self.display();
-        self.check_for_combat(true);
-        self.check_for_item();
-        self.check_for_equipment();
+        self.just_flee = false;
     }
 
     /**

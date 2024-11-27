@@ -4,21 +4,21 @@
         "icon": "🐉",
         "description": "Very powerful flee at all cost!",
         "hp": 200,
-        "atk": 50
+        "atk": 80
     },
     "Dino": {
         "name": "Dinosaure",
         "icon": "🦖",
         "description": "Imensly dangerous, to avoid!",
         "hp": 150,
-        "atk": 40
+        "atk": 60
     },
     "Whale": {
         "name": "Whale",
         "icon": "🐋",
         "description": "Will block your way.",
         "hp": 200,
-        "atk": 20
+        "atk": 50
     },
     "Mosquito": {
         "name": "Mosquito",
@@ -32,7 +32,7 @@
         "icon": "🐗",
         "description": "A wild pig with tusks.",
         "hp": 100,
-        "atk": 20
+        "atk": 25
     },
     "Turkey": {
         "name": "Turkey",

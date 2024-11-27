@@ -83,6 +83,7 @@ impl UI {
 
     pub fn display_combat_start(
         &self,
+        can_flee: bool,
         turn: i32,
         player_icon: &str,
         player_name: &str,
@@ -152,7 +153,7 @@ impl UI {
             println!();
         }
 
-        display_combat_options();
+        display_combat_options(can_flee);
         if printed_combat_info == 0 {
             println!("\t{}", combat_intro);
             println!("\t{}", combat_info);
@@ -161,6 +162,7 @@ impl UI {
 
     pub fn display_combat_turn(
         &self,
+        can_flee: bool,
         turn: i32,
         player_icon: &str,
         player_name: &str,
@@ -242,7 +244,7 @@ impl UI {
             println!();
         }
 
-        display_combat_options();
+        display_combat_options(can_flee);
         if printed_combat_info == 0 {
             println!("\t{}", combat_intro);
             println!("\t{}", combat_info);
@@ -258,6 +260,7 @@ pub fn display_welcome_message() {
     println!("==========================================================================\n");
     println!("Votre mission : Atteignez l'artefact caché dans le labyrinthe, mais prennez garde aux monstres !");
     println!("Des artefacts secondaires peuvent vous aider à survivre...\n");
+    println!("Attention, des monstres rodent dans le labyrinthe, vous ne pourrez pas les fuires si ils vous attaquent !");
     println!("Carte ({} : joueur, {} : artefact, {} : objet, {} : ennemi, {} : mur) : \n",
     "🧍", // PLAYER_ICON
     "👑", // GOAL_ICON
@@ -295,8 +298,13 @@ pub fn display_wall_message() {
     println!("\nVous ne pouvez pas traverser un mur !\n");
 }
 
-pub fn display_combat_options() {
-    println!("\nRègles de combat : A attaquer, F fuir, P potion");
+pub fn display_combat_options(can_flee : bool) {
+    if can_flee {
+
+        println!("\nRègles de combat : A attaquer, F fuir, P potion");
+    }else {
+        println!("\nRègles de combat : A attaquer, P potion")
+    }
 }
 
 pub fn display_attack_message() {

@@ -26,6 +26,7 @@ pub struct Grid {
     height: usize,
     player: Player,
     last_movement: char,
+    just_flee: bool,
     monsters: MonsterManager,
     items: ItemManager,
     equipments: EquipmentManager,
@@ -58,6 +59,7 @@ impl Grid {
             height,
             player: Player::new((0, 0)),
             last_movement: ' ',
+            just_flee: false,
             monsters: MonsterManager::new(),
             items: ItemManager::new(),
             equipments: EquipmentManager::new(),
@@ -296,16 +298,18 @@ impl Grid {
     /**
      * Supprime l'ennemi à la position du joueur
      */
-    pub fn check_for_monster(&mut self) {
+    pub fn check_for_combat(&mut self, can_flee: bool) {
         if self.monsters.get_mut(self.player.get_position()).is_none() {
             return;
         } else {
             let monster = self.monsters.get_mut(self.player.get_position()).unwrap();
             if monster.get_position() == self.player.get_position() && monster.is_visible() {
-                if combat::start_combat(&mut self.player, &mut *monster, &mut self.ui) {
+                if combat::start_combat(can_flee, &mut self.player, &mut *monster, &mut self.ui) {
                     monster.set_visible(false);
                 } else {
-                    self.flee();
+                    if can_flee {
+                        self.flee();
+                    }
                     self.display();
                 }
             }
@@ -325,47 +329,53 @@ impl Grid {
             .iter()
             .map(|m| m.get_position())
             .collect();
+        if !self.just_flee {
+            for (i, monster) in self.monsters.get_all_mut().iter_mut().enumerate() {
+                let (mx, my) = monster_positions[i];
+                let (px, py) = player_position;
 
-        for (i, monster) in self.monsters.get_all_mut().iter_mut().enumerate() {
-            let (mx, my) = monster_positions[i];
-            let (px, py) = player_position;
+                let mut possible_moves = Vec::new();
 
-            let mut possible_moves = Vec::new();
+                // Check each possible move and ensure it is within grid boundaries
+                if mx + 1 < self.width {
+                    possible_moves.push((mx + 1, my));
+                }
+                if mx > 0 {
+                    possible_moves.push((mx - 1, my));
+                }
+                if my + 1 < self.height {
+                    possible_moves.push((mx, my + 1));
+                }
+                if my > 0 {
+                    possible_moves.push((mx, my - 1));
+                }
 
-            // Check each possible move and ensure it is within grid boundaries
-            if mx + 1 < self.width {
-                possible_moves.push((mx + 1, my));
-            }
-            if mx > 0 {
-                possible_moves.push((mx - 1, my));
-            }
-            if my + 1 < self.height {
-                possible_moves.push((mx, my + 1));
-            }
-            if my > 0 {
-                possible_moves.push((mx, my - 1));
-            }
+                // Filter out moves that are blocked by walls or other monsters
+                possible_moves.retain(|&(nx, ny)| {
+                    !self.walls.contains(&(nx, ny))
+                        && !new_positions.contains(&(nx, ny))
+                        && !monster_positions.contains(&(nx, ny))
+                });
 
-            // Filter out moves that are blocked by walls or other monsters
-            possible_moves.retain(|&(nx, ny)| {
-                !self.walls.contains(&(nx, ny))
-                    && !new_positions.contains(&(nx, ny))
-                    && !monster_positions.contains(&(nx, ny))
-            });
-
-            // Choose the move that gets the monster closest to the player
-            if let Some(&(nx, ny)) = possible_moves.iter().min_by_key(|&&(nx, ny)| {
-                ((nx as isize - px as isize).abs() + (ny as isize - py as isize).abs()) as usize
-            }) {
-                new_positions.push((nx, ny));
-                monster.set_position((nx, ny));
-            } else {
-                new_positions.push((mx, my));
+                // Choose the move that gets the monster closest to the player
+                if let Some(&(nx, ny)) = possible_moves.iter().min_by_key(|&&(nx, ny)| {
+                    ((nx as isize - px as isize).abs() + (ny as isize - py as isize).abs()) as usize
+                }) {
+                    new_positions.push((nx, ny));
+                    monster.set_position((nx, ny));
+                } else {
+                    new_positions.push((mx, my));
+                }
             }
         }
+        self.display();
+        self.check_for_combat(false);
+        self.check_for_item();
+        self.check_for_equipment();
     }
 
     pub fn move_player(&mut self, movement: char) {
+        self.just_flee = false;
         let (x, y) = self.player.get_position();
         let new_position = match movement {
             'z' if y > 0 => (x, y - 1),               // Move up
@@ -385,6 +395,10 @@ impl Grid {
         }
         self.last_movement = movement;
         self.update_ui();
+        self.display();
+        self.check_for_combat(true);
+        self.check_for_item();
+        self.check_for_equipment();
     }
 
     /**
@@ -398,6 +412,7 @@ impl Grid {
             'd' => self.move_player('q'),
             _ => {}
         };
+        self.just_flee = true;
     }
 
     /**

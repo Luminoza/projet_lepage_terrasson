@@ -7,8 +7,9 @@ use crate::entities::player::Player;
 use crate::items::item::ItemType;
 use crate::ui::{self, UI};
 
-pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> bool {
+pub fn start_combat(can_flee: bool, player: &mut Player, monster: &mut Monster, ui: &mut UI) -> bool {
     ui.display_combat_start(
+        can_flee,
         0,
         player.get_icon(),
         &player.get_name(),
@@ -45,6 +46,7 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> 
                     return false;
                 }
                 ui.display_combat_turn(
+                    can_flee,
                     turn,
                     player.get_icon(),
                     &player.get_name(),
@@ -58,6 +60,7 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> 
                 player.use_item(ItemType::HealingPotion);
                 ui.update_items(player.get_items().clone());
                 ui.display_combat_turn(
+                    can_flee,
                     turn,
                     player.get_icon(),
                     &player.get_name(),
@@ -68,8 +71,12 @@ pub fn start_combat(player: &mut Player, monster: &mut Monster, ui: &mut UI) -> 
                 );
             }
             'f' => {
-                ui::display_flee_message();
-                return false;
+                if can_flee {
+                    ui::display_flee_message();
+                    return false;
+                } else {
+                    ui::display_invalid_choice_message();
+                }
             }
             _ => ui::display_invalid_choice_message(),
         }

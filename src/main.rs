@@ -8,43 +8,24 @@ use grid::Grid;
 mod ui;
 
 use std::sync::{Arc, Mutex};
-use std::thread;
-use std::time::Duration;
 
 fn main() {
+
     ui::display_welcome_message();
 
     ui::display_map_size();
-    let input = read_key();
+    let size = read_key();
 
-    let mut width = input;
-    if width % 2 == 0 {
-        width += 1;
-    }
-
-    let mut height = input;
-    if height % 2 == 0 {
-        height += 1;
-    }
-
-    let ui = ui::UI::new(width, height);
-    let grid = Arc::new(Mutex::new(Grid::new(width, height, ui)));
+    let ui = ui::UI::new(size);
+    let grid = Arc::new(Mutex::new(Grid::new(size, ui)));
 
     grid.lock().unwrap().init();
-
-    let grid_clone = Arc::clone(&grid);
-    thread::spawn(move || {
-        loop {
-            thread::sleep(Duration::from_secs(1));
-            let mut grid = grid_clone.lock().unwrap();
-            grid.move_monster();
-            grid.display();
-        }
-    });
-
     grid.lock().unwrap().display();
+
     loop {
+
         let mut grid = grid.lock().unwrap();
+
         if grid.has_won() {
             ui::display_victory_message();
             break;
@@ -60,6 +41,7 @@ fn main() {
         }
 
         grid.move_player(movement);
+
         grid.display();
         grid.check_for_combat(true);
         grid.check_for_item();

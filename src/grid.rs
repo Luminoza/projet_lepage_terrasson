@@ -22,8 +22,7 @@ const COMBAT_ICON: &str = "❌";
 
 /// Structure représentant la grille de jeu
 pub struct Grid {
-    width: usize,
-    height: usize,
+    size: usize,
     player: Player,
     last_movement: char,
     just_flee: bool,
@@ -40,23 +39,22 @@ pub struct Grid {
 impl Grid {
     /**
      * Constructeur pour initialiser une nouvelle grille
-     * @param width Largeur de la grille
-     * @param height Hauteur de la grille
+     * @param size Largeur de la grille
+     * @param size Hauteur de la grille
      * @param ui Référence mutable à l'instance de UI
      * @return Une nouvelle instance de Grid
      */
-    pub fn new(width: usize, height: usize, ui: UI) -> Self {
+    pub fn new(size: usize, ui: UI) -> Self {
         let mut rng = rand::thread_rng();
         let goal = (
-            rng.gen_range((width * 3 / 4)..width),
-            rng.gen_range((height * 3 / 4)..height),
+            rng.gen_range((size * 3 / 4)..size),
+            rng.gen_range((size * 3 / 4)..size),
         );
 
-        let map_to_display = vec![vec![NO_WALL_ICON.to_string(); width]; height];
+        let map_to_display = vec![vec![NO_WALL_ICON.to_string(); size]; size];
 
         Grid {
-            width,
-            height,
+            size,
             player: Player::new((0, 0)),
             last_movement: ' ',
             just_flee: false,
@@ -73,9 +71,9 @@ impl Grid {
 
     pub fn init(&mut self) {
         self.place_walls();
-        self.place_items((self.width * self.height) / 50);
-        self.place_equipments((self.width * self.height) / 50);
-        self.place_monsters((self.width * self.height) / 100);
+        self.place_items((self.size * self.size) / 50);
+        self.place_equipments((self.size * self.size) / 50);
+        self.place_monsters((self.size * self.size) / 100);
         self.update_ui();
     }
 
@@ -91,7 +89,7 @@ impl Grid {
      * @return Un vecteur 2D représentant le labyrinthe
      */
     fn generate_maze(&self) -> Vec<Vec<u8>> {
-        let mut maze = vec![vec![0; self.width]; self.height];
+        let mut maze = vec![vec![0; self.size]; self.size];
 
         let start = self.player.get_position();
         let stop = self.goal;
@@ -106,13 +104,13 @@ impl Grid {
             if x > 1 && maze[y][x - 2] == 0 {
                 neighbors.push((x - 2, y));
             }
-            if x < self.width - 2 && maze[y][x + 2] == 0 {
+            if x < self.size - 2 && maze[y][x + 2] == 0 {
                 neighbors.push((x + 2, y));
             }
             if y > 1 && maze[y - 2][x] == 0 {
                 neighbors.push((x, y - 2));
             }
-            if y < self.height - 2 && maze[y + 2][x] == 0 {
+            if y < self.size - 2 && maze[y + 2][x] == 0 {
                 neighbors.push((x, y + 2));
             }
 
@@ -133,16 +131,16 @@ impl Grid {
         let mut maze = self.generate_maze();
 
         let mut rng = rand::thread_rng();
-        for x in 0..self.width {
-            for y in 0..self.height {
+        for x in 0..self.size {
+            for y in 0..self.size {
                 if rng.gen_range(0..100) < 5 {
                     maze[y][x] = 1;
                 }
             }
         }
 
-        for x in 0..self.width {
-            for y in 0..self.height {
+        for x in 0..self.size {
+            for y in 0..self.size {
                 if maze[y][x] == 0 {
                     self.walls.push((x, y));
                 }
@@ -158,7 +156,7 @@ impl Grid {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
-                let position = (rng.gen_range(0..self.width), rng.gen_range(0..self.height));
+                let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
 
                 if self.is_position_empty(position) {
                     self.items
@@ -177,7 +175,7 @@ impl Grid {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
-                let position = (rng.gen_range(0..self.width), rng.gen_range(0..self.height));
+                let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
 
                 if self.is_position_empty(position) {
                     self.equipments.add(Equipment::new(
@@ -198,7 +196,7 @@ impl Grid {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
-                let position = (rng.gen_range(0..self.width), rng.gen_range(0..self.height));
+                let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
                 if self.is_position_empty(position) {
                     self.monsters
                         .add(monster::get_random_monster((position.0, position.1)));
@@ -341,13 +339,13 @@ impl Grid {
                 let mut possible_moves = Vec::new();
 
                 // Check each possible move and ensure it is within grid boundaries
-                if mx + 1 < self.width {
+                if mx + 1 < self.size {
                     possible_moves.push((mx + 1, my));
                 }
                 if mx > 0 {
                     possible_moves.push((mx - 1, my));
                 }
-                if my + 1 < self.height {
+                if my + 1 < self.size {
                     possible_moves.push((mx, my + 1));
                 }
                 if my > 0 {
@@ -381,8 +379,8 @@ impl Grid {
         let new_position = match movement {
             'z' if y > 0 => (x, y - 1),               // Move up
             'q' if x > 0 => (x - 1, y),               // Move left
-            's' if y < self.height - 1 => (x, y + 1), // Move down
-            'd' if x < self.width - 1 => (x + 1, y),  // Move right
+            's' if y < self.size - 1 => (x, y + 1), // Move down
+            'd' if x < self.size - 1 => (x + 1, y),  // Move right
             _ => {
                 self.ui.display_game_view_and_message(vec![
                     "------------------ Déplacement -------------------".to_string(),
@@ -441,8 +439,8 @@ impl Grid {
     pub fn build_map(&mut self) {
         let mut position;
         {
-            for y in 0..self.height {
-                for x in 0..self.width {
+            for y in 0..self.size {
+                for x in 0..self.size {
                     position = (x, y);
                     if self.should_display_wall(position) {
                         self.map_to_display[x][y] = WALL_ICON.to_string();

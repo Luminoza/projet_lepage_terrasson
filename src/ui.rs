@@ -11,7 +11,18 @@ pub struct UI {
 }
 
 impl UI {
-    pub fn new(width: usize, height: usize) -> Self {
+    pub fn new(size: usize) -> Self {
+
+        let mut width = size;
+        if width % 2 == 0 {
+            width += 1;
+        }
+    
+        let mut height = size;
+        if height % 2 == 0 {
+            height += 1;
+        }
+
         UI {
             map_to_display: vec![vec![String::new(); width]; height],
             equipments_to_display: Vec::new(),

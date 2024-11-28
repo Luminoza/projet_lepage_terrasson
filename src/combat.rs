@@ -1,10 +1,10 @@
-use crossterm::event;
-use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
+use crossterm::terminal::enable_raw_mode;
 
 use crate::entities::entity::EntityTrait;
 use crate::entities::monster::Monster;
 use crate::entities::player::Player;
 use crate::items::item::ItemType;
+use crate::read_active_key;
 use crate::ui::UI;
 
 pub fn start_combat(
@@ -55,16 +55,7 @@ pub fn start_combat(
 
     loop {
         enable_raw_mode().unwrap();
-        let action = match event::read().unwrap() {
-            event::Event::Key(event::KeyEvent {
-                code: event::KeyCode::Char(c),
-                ..
-            }) => c,
-            _ => continue,
-        };
-        if let Err(e) = disable_raw_mode() {
-            eprintln!("Erreur lors de la désactivation du mode brut: {}", e);
-        }
+        let action = read_active_key();
 
         match action {
             'a' => {

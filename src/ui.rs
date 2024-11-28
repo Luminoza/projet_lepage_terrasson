@@ -97,6 +97,10 @@ pub fn display_welcome_message() {
     );
 }
 
+pub fn display_map_size() {
+    print!("Entrez la taille de la carte: ");
+}
+
 pub fn display_victory_message() {
     println!("\n Félicitation ! Vous avez trouvé l'artefact !");
     println!("\n==================================================================================================================");

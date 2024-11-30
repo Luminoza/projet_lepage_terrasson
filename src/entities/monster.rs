@@ -264,18 +264,6 @@ impl MonsterManager {
     }
 
     /**
-     * Retourne un monstre à une position donnée
-     */
-    pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Monster> {
-        for monster in &mut self.monsters {
-            if monster.get_position() == position {
-                return Some(monster);
-            }
-        }
-        None
-    }
-
-    /**
      * Retourne tous les monstres
      */
     pub fn get_all_mut(&mut self) -> &mut Vec<Monster> {

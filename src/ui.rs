@@ -30,18 +30,30 @@ impl UI {
         }
     }
 
+    /**
+     * Met à jour la carte à afficher
+     */
     pub fn update_map(&mut self, map: Vec<Vec<String>>) {
         self.map_to_display = map;
     }
 
+    /**
+     * Met à jour les équipements à afficher
+     */
     pub fn update_equipments(&mut self, equipments: Vec<Equipment>) {
         self.equipments_to_display = equipments;
     }
 
+    /**
+     * Met à jour les items à afficher
+     */
     pub fn update_items(&mut self, items: Vec<Item>) {
         self.items_to_display = items;
     }
 
+    /**
+     * Affiche la vue du jeu
+     */
     pub fn display_game_view_and_message(&self, additional_lines: Vec<String>) {
         
         let mut item_counts = std::collections::HashMap::new();
@@ -57,6 +69,7 @@ impl UI {
 
         let mut additional_line_index = 0;
 
+        print!("\n");
         print!("\n");
 
         for y in 0..self.map_to_display.len() {
@@ -97,6 +110,9 @@ impl UI {
     }
 }
 
+/**
+ * 
+ */
 pub fn display_welcome_message() {
     println!("\n\n==========================================================================");
     println!("=== Bienvenue dans l'aventure RPG Indiana Jones (TaTala Ta TataLAAAAA) ===");
@@ -113,6 +129,9 @@ pub fn display_welcome_message() {
     );
 }
 
+/**
+ * Fonction pour afficher un message de demande de taille de la carte
+ */
 pub fn display_map_size() {
     print!("Entrez la taille de la carte: ");
 }
@@ -121,6 +140,7 @@ pub fn display_victory_message() {
     println!("\n Félicitation ! Vous avez trouvé l'artefact !");
     println!("\n==================================================================================================================");
 }
+
 
 pub fn display_game_over_message() {
     println!("Game Over ! Vous êtes mort...");

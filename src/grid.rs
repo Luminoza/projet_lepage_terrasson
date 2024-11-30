@@ -20,7 +20,9 @@ const PLAYER_WITH_HAT: &str = "🤠";
 const PLAYER_WITH_GLASSES: &str = "🤓";
 const COMBAT_ICON: &str = "❌";
 
-/// Structure représentant la grille de jeu
+/**
+ * Structure représentant la grille de jeu
+ */
 pub struct Grid {
     size: usize,
     player: Player,
@@ -39,8 +41,7 @@ pub struct Grid {
 impl Grid {
     /**
      * Constructeur pour initialiser une nouvelle grille
-     * @param size Largeur de la grille
-     * @param size Hauteur de la grille
+     * @param size Taille de la grille
      * @param ui Référence mutable à l'instance de UI
      * @return Une nouvelle instance de Grid
      */
@@ -69,6 +70,9 @@ impl Grid {
         }
     }
 
+    /**
+     * Initialise la grille en plaçant les murs, les objets, les ennemis et le joueur
+     */
     pub fn init(&mut self) {
         self.place_walls();
         self.place_items((self.size * self.size) / 50);
@@ -77,6 +81,9 @@ impl Grid {
         self.update_ui();
     }
 
+    /**
+     * Met à jour l'interface utilisateur
+     */
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
         self.ui.update_equipments(self.player.get_equipment().clone());
@@ -167,7 +174,7 @@ impl Grid {
     }
 
     /**
-     * Place des objets aléatoirement sur la grille
+     * Place des equipements aléatoirement sur la grille
      * @param count Nombre d'objets à placer
      */
     pub fn place_equipments(&mut self, count: usize) {
@@ -188,7 +195,7 @@ impl Grid {
     }
 
     /**
-     * Place des ennemis aléatoirement sur la grille
+     * Place des monstres aléatoirement sur la grille
      * @param count Nombre d'ennemis à placer
      */
     pub fn place_monsters(&mut self, count: usize) {
@@ -317,8 +324,7 @@ impl Grid {
     }
 
     /**
-     * Déplace le joueur en fonction de l'entrée utilisateur
-     * @param player Le joueur actuel
+     * Déplace les monstres vers le joueur
      */
     pub fn move_monsters(&mut self) {
         let player_position = self.player.get_position();
@@ -371,6 +377,10 @@ impl Grid {
         }
     }
 
+    /**
+     * Déplace le joueur en fonction de l'entrée utilisateur
+     * @param movement La direction du déplacement
+     */
     pub fn move_player(&mut self, movement: char) {
         let (x, y) = self.player.get_position();
         let new_position = match movement {
@@ -390,6 +400,7 @@ impl Grid {
 
     /**
      * Ajoute des points de vie au joueur
+     * @param amount Nombre de points de vie à ajouter
      */
     pub fn heal_player(&mut self, amount: i32) {
         self.player.heal(amount);
@@ -430,6 +441,9 @@ impl Grid {
         }
     }
 
+    /**
+     * Construit la carte à afficher
+     */
     pub fn build_map(&mut self) {
         let mut position;
         {

@@ -5,6 +5,9 @@ use crate::items::item::ItemType;
 use crate::read_key;
 use crate::ui::UI;
 
+/**
+ * Fonction pour démarrer un combat entre un joueur et un monstre
+ */
 pub fn start_combat(
     can_flee: bool,
     player: &mut Player,

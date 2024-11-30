@@ -24,6 +24,10 @@ pub struct Player {
 }
 
 impl Player {
+
+    /**
+     * Crée un nouveau joueur
+     */
     pub fn new(position: (usize, usize)) -> Player {
         let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
         let entity_map: HashMap<String, EntityData> =
@@ -48,22 +52,37 @@ impl Player {
         }
     }
 
+    /**
+     * Retourne la portée du joueur
+     */
     pub fn add_equipment(&mut self, equipment: Equipment) {
         self.equipments.push(equipment);
     }
 
+    /**
+     * Retourne les équipements du joueur
+     */
     pub fn get_equipment(&self) -> &Vec<Equipment> {
         &self.equipments
     }
 
+    /**
+     * Retourne les items du joueur
+     */
     pub fn get_items(&self) -> &Vec<Item> {
         &self.items
     }
 
+    /**
+     * Ajoute un item à l'inventaire du joueur
+     */
     pub fn add_item(&mut self, item: Item) {
         self.items.push(item);
     }
 
+    /**
+     * Retire un item de l'inventaire du joueur
+     */
     pub fn remove_item(&mut self, item_type: ItemType) {
         for item in self.get_items() {
             if item.get_type() == &item_type {
@@ -78,6 +97,9 @@ impl Player {
         }
     }
 
+    /**
+     * Utilise un item de l'inventaire
+     */
     pub fn use_item(&mut self, item_type: ItemType) {
         if let Some(item) = self.items.iter().find(|&i| i.get_type() == &item_type) {
             match item.get_type() {
@@ -89,6 +111,9 @@ impl Player {
         }
     }
 
+    /**
+     * Retourne si le joueur possède un équipement
+     */
     pub fn has_equipment(&self, equipment_type: EquipmentType) -> bool {
         for equipment in &self.equipments {
             if equipment.get_type() == equipment_type {
@@ -97,31 +122,55 @@ impl Player {
         }
         false
     }
+
+    /**
+     * Attaque une cible
+     */
     pub fn attack(&self, target: &mut Monster) {
         target.take_damage(self.get_attack());
     }
 
+    /**
+     * Définir la portée du joueur
+     */
     pub fn set_range(&mut self, range: usize){
         self.range = range;
     }
 
+    /**
+     * Retourne la portée du joueur
+     */
     pub fn get_range(&self) -> usize{
         self.range
     }
+
+    /**
+     * Définir l'icône du joueur
+     */
     pub fn set_icon(&mut self, icon: &str) {
         self.base.icon = icon.to_string();
     }
 
+    /**
+     * Définir le nom du joueur
+     */
     pub fn heal(&mut self, amount: i32) {
         self.base.heal(amount);
     }
 }
 
 impl EntityTrait for Player {
+
+    /**
+     * Retourne les points de vie du joueur
+     */
     fn get_health(&self) -> i32 {
         self.base.hp
     }
 
+    /**
+     * Retourne les points d'attaque du joueur
+     */
     fn get_attack(&self) -> i32 {
         if self.has_equipment(EquipmentType::Whip) {
             return self.base.atk + 20;
@@ -129,30 +178,51 @@ impl EntityTrait for Player {
         self.base.atk
     }
 
+    /**
+     * Retourne le nom du joueur
+     */
     fn get_name(&self) -> String {
         self.base.get_name()
     }
 
+    /**
+     * Retourne l'icône du joueur
+     */
     fn get_icon(&self) -> &str {
         self.base.get_icon()
     }
 
+    /**
+     * Retourne la description du joueur
+     */
     fn get_description(&self) -> String {
         self.base.get_description()
     }
 
+    /**
+     * Retourne la position du joueur
+     */
     fn get_position(&self) -> (usize, usize) {
         self.base.get_position()
     }
 
+    /**
+     * Retourne le type du joueur
+     */
     fn get_type(&self) -> EntityType {
         self.base.get_type()
     }
 
+    /**
+     * Définit la position du joueur
+     */
     fn set_position(&mut self, position: (usize, usize)) {
         self.base.set_position(position);
     }
 
+    /**
+     * Diminue les points de vie du joueur en cas de dégâts
+     */
     fn take_damage(&mut self, damage: i32) {
         let mut resist = 0;
         if self.has_equipment(EquipmentType::Vest) {
@@ -166,22 +236,37 @@ impl EntityTrait for Player {
         }
     }
 
+    /**
+     * Soigne le joueur
+     */
     fn heal(&mut self, heal: i32) {
         self.base.heal(heal);
     }
 
+    /**
+     * Augmente les points d'attaque du joueur
+     */
     fn buff_attack(&mut self, buff: i32) {
         self.base.buff_attack(buff);
     }
 
+    /**
+     * Retourne si le joueur est mort
+     */
     fn is_dead(&self) -> bool {
         self.base.is_dead()
     }
 
+    /**
+     * Retourne si le joueur est visible
+     */
     fn is_visible(&self) -> bool {
         self.base.is_visible()
     }
 
+    /**
+     * Définit si le joueur est visible
+     */
     fn set_visible(&mut self, visible: bool) {
         self.base.set_visible(visible);
     }

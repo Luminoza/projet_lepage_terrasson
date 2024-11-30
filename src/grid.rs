@@ -256,6 +256,7 @@ impl Grid {
             "".to_string(),
             "--------------------- Déplacement ----------------------".to_string(),
             "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
+            "Appuyer sur entré pour valider".to_string(),
         ]);
     }
 

@@ -24,6 +24,12 @@ fn main() {
     let grid_monster = Arc::clone(&grid);
     let grid_1 = Arc::clone(&grid);
 
+    let player_moved = Arc::new(Mutex::new(false));
+    let monster_moved = Arc::new(Mutex::new(false));
+
+    let player_moved_clone = Arc::clone(&player_moved);
+    let monster_moved_clone = Arc::clone(&monster_moved);
+
     // Thread pour gérer les actions du joueur
     let move_player_thread = thread::spawn(move || {
         loop {
@@ -34,6 +40,7 @@ fn main() {
                 std::process::exit(0);
             }
             grid_player.lock().unwrap().move_player(movement);
+            *player_moved_clone.lock().unwrap() = true;
             std::thread::sleep(std::time::Duration::from_millis(100));
         }
     });
@@ -41,13 +48,21 @@ fn main() {
     // Thread pour gérer les mouvements des monstres
     let move_monster_thread = thread::spawn(move || {
         loop {
-            grid_monster.lock().unwrap().move_monsters();
             thread::sleep(std::time::Duration::from_millis(1000));
+            grid_monster.lock().unwrap().move_monsters();
+            *monster_moved_clone.lock().unwrap() = true;
         }
     });
 
-    loop {
+    // Thread pour ajouter 10 points de vie au joueur toutes les 10 sec
+    let heal_player_thread = thread::spawn(move || {
+        loop {
+            thread::sleep(std::time::Duration::from_millis(10000));
+            grid_1.lock().unwrap().heal_player(10);
+        }
+    }); 
 
+    loop {
         grid.lock().unwrap().check_for_combat(true);
         grid.lock().unwrap().check_for_item();
         grid.lock().unwrap().check_for_equipment();
@@ -59,10 +74,15 @@ fn main() {
             ui::display_game_over_message();
             std::process::exit(0);
         }
-        
-        grid.lock().unwrap().display();
 
-        std::thread::sleep(std::time::Duration::from_millis(100));
+        let mut player_moved = player_moved.lock().unwrap();
+        let mut monster_moved = monster_moved.lock().unwrap();
+
+        if *player_moved || *monster_moved {
+            grid.lock().unwrap().display();
+            *player_moved = false;
+            *monster_moved = false;
+        }
     }
 }
 

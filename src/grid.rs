@@ -389,6 +389,14 @@ impl Grid {
     }
 
     /**
+     * Ajoute des points de vie au joueur
+     */
+    pub fn heal_player(&mut self, amount: i32) {
+        self.player.heal(amount);
+        println!("{} a été soigné de {} points de vie",self.player.get_name(), amount);
+    }
+
+    /**
      * Gère la fuite lors d'un combat
      */
     pub fn flee(&mut self) {

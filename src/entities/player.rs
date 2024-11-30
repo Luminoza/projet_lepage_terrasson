@@ -111,6 +111,10 @@ impl Player {
     pub fn set_icon(&mut self, icon: &str) {
         self.base.icon = icon.to_string();
     }
+
+    pub fn heal(&mut self, amount: i32) {
+        self.base.heal(amount);
+    }
 }
 
 impl EntityTrait for Player {

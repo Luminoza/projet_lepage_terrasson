@@ -110,22 +110,32 @@ impl Grid {
     }
 
     /**
-     * Génère un labyrinthe en utilisant l'algorithme de parcours en profondeur
+     * Génère un labyrinthe en utilisant un algorithme de parcours en profondeur
      * @return Un vecteur 2D représentant le labyrinthe
      */
     fn generate_maze(&self) -> Vec<Vec<u8>> {
+
+        // Initialisation de la grille
         let mut maze = vec![vec![0; self.size]; self.size];
 
+        // Initialisation des variables de départ et d'arrivée
         let start = self.player.get_position();
         let stop = self.goal;
 
+        // Initialisation de la pile et du générateur de nombres aléatoires
         let mut stack = vec![start];
         let mut rng = rand::thread_rng();
 
+        // Cette fonction génère un labyrinthe en utilisant l'algorithme de parcours en profondeur (Depth-First Search).
+        // Elle utilise une pile pour suivre les cellules à visiter et un vecteur pour stocker les voisins non visités.
+
+        // Tant qu'il y a des éléments dans la pile
         while let Some((x, y)) = stack.pop() {
+            // Marque la cellule actuelle comme faisant partie du chemin du labyrinthe
             maze[y][x] = 1;
             let mut neighbors = vec![];
 
+            // Vérifie les voisins non visités (cellules à deux cases de distance) et les ajoute à la liste des voisins
             if x > 1 && maze[y][x - 2] == 0 {
                 neighbors.push((x - 2, y));
             }
@@ -139,13 +149,19 @@ impl Grid {
                 neighbors.push((x, y + 2));
             }
 
+            // Si des voisins non visités existent, en choisit un au hasard
             if let Some(&(nx, ny)) = neighbors.choose(&mut rng) {
+                // Remet la cellule actuelle dans la pile pour la revisiter plus tard
                 stack.push((x, y));
+                // Ajoute le voisin choisi à la pile
                 stack.push((nx, ny));
+                // Marque le mur entre la cellule actuelle et le voisin choisi comme faisant partie du chemin
                 maze[(y + ny) / 2][(x + nx) / 2] = 1;
             }
         }
+        // Marque la cellule de fin comme faisant partie du chemin du labyrinthe
         maze[stop.1][stop.0] = 1;
+        // Retourne le labyrinthe généré
         maze
     }
 
@@ -155,6 +171,7 @@ impl Grid {
     pub fn place_walls(&mut self) {
         let mut maze = self.generate_maze();
 
+        // Retire quelques murs pour ajouter un peu de difficulté
         let mut rng = rand::thread_rng();
         for x in 0..self.size {
             for y in 0..self.size {
@@ -164,6 +181,7 @@ impl Grid {
             }
         }
 
+        // Ajoute les murs à la grille
         for x in 0..self.size {
             for y in 0..self.size {
                 if maze[y][x] == 0 {
@@ -537,11 +555,11 @@ impl Grid {
             }
         }
 
-        println!("Player position: {:?}", self.player.get_position());
+        // println!("Player position: {:?}", self.player.get_position());
 
         for monster in monsters_within_range.iter() {
             if monster.is_visible() {
-                println!("Monster position: {:?}", monster.get_position());
+                // println!("Monster position: {:?}", monster.get_position());
                 if self.player.get_position() == monster.get_position() {
                     self.map_to_display[monster.get_position().0][monster.get_position().1] =
                     COMBAT_ICON.to_string();

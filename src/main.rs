@@ -83,9 +83,11 @@ fn main() {
 
         // Affichage de la grille si le joueur ou un monstre a bougé
         if *player_moved || *monster_moved {
+            
             grid.lock().unwrap().display();
             *player_moved = false;
             *monster_moved = false;
+
             grid.lock().unwrap().check_for_item();
             grid.lock().unwrap().check_for_equipment();
             grid.lock().unwrap().check_for_combat(true);

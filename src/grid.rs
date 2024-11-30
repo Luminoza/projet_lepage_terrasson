@@ -79,7 +79,8 @@ impl Grid {
 
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
-        self.ui.update_equipments(self.player.get_equipment().clone());
+        self.ui
+            .update_equipments(self.player.get_equipment().clone());
         self.ui.update_items(self.player.get_items().clone());
     }
 
@@ -300,19 +301,24 @@ impl Grid {
      * Supprime l'ennemi à la position du joueur
      */
     pub fn check_for_combat(&mut self, can_flee: bool) {
-        if self.monsters.get_mut(self.player.get_position()).is_none() {
-            return;
-        } else {
-            let monster = self.monsters.get_mut(self.player.get_position()).unwrap();
+        let mut flee = false;
+        for monster in self
+            .monsters
+            .within_range(self.player.get_position(), self.player.get_range())
+        {
             if monster.get_position() == self.player.get_position() && monster.is_visible() {
                 if combat::start_combat(can_flee, &mut self.player, &mut *monster, &mut self.ui) {
                     monster.set_visible(false);
                 } else {
                     if can_flee {
-                        self.flee();
+                        flee = true;
                     }
                 }
             }
+        }
+
+        if flee {
+            self.flee();
         }
     }
 
@@ -367,17 +373,17 @@ impl Grid {
                     new_positions.push((mx, my));
                 }
             }
-            self.check_for_combat(false);
+            // self.check_for_combat(false);
         }
     }
 
     pub fn move_player(&mut self, movement: char) {
         let (x, y) = self.player.get_position();
         let new_position = match movement {
-            'z' if y > 0 => (x, y - 1),               // Move up
-            'q' if x > 0 => (x - 1, y),               // Move left
+            'z' if y > 0 => (x, y - 1),             // Move up
+            'q' if x > 0 => (x - 1, y),             // Move left
             's' if y < self.size - 1 => (x, y + 1), // Move down
-            'd' if x < self.size - 1 => (x + 1, y),  // Move right
+            'd' if x < self.size - 1 => (x + 1, y), // Move right
             _ => return,
         };
 
@@ -393,6 +399,7 @@ impl Grid {
      */
     pub fn heal_player(&mut self, amount: i32) {
         self.player.heal(amount);
+        // self.ui.display_game_view_and_message(additional_lines);
         println!("{} a été soigné de {} points de vie",self.player.get_name(), amount);
     }
 
@@ -465,9 +472,10 @@ impl Grid {
             .items
             .within_range(self.player.get_position(), self.player.get_range());
 
+        let monster_positions: HashSet<_> = monsters_within_range.iter().map(|m| m.get_position()).collect();
         for item in items_within_range {
             if item.is_visible()
-                && !self.monsters.is_position_occupied(item.get_position())
+                && !monster_positions.contains(&item.get_position())
                 && self.player.get_position() != item.get_position()
             {
                 if self.player.has_equipment(EquipmentType::Glasses) {
@@ -480,9 +488,10 @@ impl Grid {
             }
         }
 
+
         for equipment in equipment_within_range {
             if equipment.is_visible()
-                && !self.monsters.is_position_occupied(equipment.get_position())
+                && !monster_positions.contains(&equipment.get_position())
                 && self.player.get_position() != equipment.get_position()
             {
                 if self.player.has_equipment(EquipmentType::Glasses) {
@@ -495,11 +504,14 @@ impl Grid {
             }
         }
 
-        for monster in monsters_within_range {
+        println!("Player position: {:?}", self.player.get_position());
+
+        for monster in monsters_within_range.iter() {
             if monster.is_visible() {
+                println!("Monster position: {:?}", monster.get_position());
                 if self.player.get_position() == monster.get_position() {
                     self.map_to_display[monster.get_position().0][monster.get_position().1] =
-                        COMBAT_ICON.to_string();
+                    COMBAT_ICON.to_string();
                 } else {
                     self.map_to_display[monster.get_position().0][monster.get_position().1] =
                         monster.get_icon().to_string();

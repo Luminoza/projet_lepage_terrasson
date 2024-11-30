@@ -31,7 +31,7 @@ fn main() {
     let monster_moved_clone = Arc::clone(&monster_moved);
 
     // Thread pour gérer les actions du joueur
-    let move_player_thread = thread::spawn(move || {
+    thread::spawn(move || {
         loop {
             // let movement = read_active_key();
             let movement = read_key();
@@ -46,35 +46,19 @@ fn main() {
     });
 
     // Thread pour gérer les mouvements des monstres
-    let move_monster_thread = thread::spawn(move || {
-        loop {
-            thread::sleep(std::time::Duration::from_millis(1000));
-            grid_monster.lock().unwrap().move_monsters();
-            *monster_moved_clone.lock().unwrap() = true;
-        }
+    thread::spawn(move || loop {
+        thread::sleep(std::time::Duration::from_millis(1000));
+        grid_monster.lock().unwrap().move_monsters();
+        *monster_moved_clone.lock().unwrap() = true;
     });
 
     // Thread pour ajouter 10 points de vie au joueur toutes les 10 sec
-    let heal_player_thread = thread::spawn(move || {
-        loop {
-            thread::sleep(std::time::Duration::from_millis(10000));
-            grid_1.lock().unwrap().heal_player(10);
-        }
-    }); 
+    thread::spawn(move || loop {
+        thread::sleep(std::time::Duration::from_millis(10000));
+        grid_1.lock().unwrap().heal_player(10);
+    });
 
     loop {
-        grid.lock().unwrap().check_for_combat(true);
-        grid.lock().unwrap().check_for_item();
-        grid.lock().unwrap().check_for_equipment();
-
-        if grid.lock().unwrap().has_won() {
-            ui::display_victory_message();
-            std::process::exit(0);
-        } else if grid.lock().unwrap().has_lost() {
-            ui::display_game_over_message();
-            std::process::exit(0);
-        }
-
         let mut player_moved = player_moved.lock().unwrap();
         let mut monster_moved = monster_moved.lock().unwrap();
 
@@ -82,6 +66,17 @@ fn main() {
             grid.lock().unwrap().display();
             *player_moved = false;
             *monster_moved = false;
+            grid.lock().unwrap().check_for_item();
+            grid.lock().unwrap().check_for_equipment();
+            grid.lock().unwrap().check_for_combat(true);
+        }
+
+        if grid.lock().unwrap().has_won() {
+            ui::display_victory_message();
+            std::process::exit(0);
+        } else if grid.lock().unwrap().has_lost() {
+            ui::display_game_over_message();
+            std::process::exit(0);
         }
     }
 }

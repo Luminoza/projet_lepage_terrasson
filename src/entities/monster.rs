@@ -145,8 +145,8 @@ impl MonsterManager {
         self.monsters.push(monster);
     }
 
-    pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Monster> {
-        self.monsters.iter().filter(|monster| {
+    pub fn within_range(&mut self, position: (usize, usize), range: usize) -> Vec<&mut Monster> {
+        self.monsters.iter_mut().filter(|monster| {
             let (mx, my) = monster.get_position();
             let (mx, my) = (mx as isize, my as isize);
             let (px, py) = (position.0 as isize, position.1 as isize);
@@ -156,15 +156,6 @@ impl MonsterManager {
 
     pub fn is_position_occupied(&self, position: (usize, usize)) -> bool {
         self.monsters.iter().any(|monster| monster.get_position() == position)
-    }
-
-    pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Monster> {
-        for monster in &mut self.monsters {
-            if monster.get_position() == position {
-                return Some(monster);
-            }
-        }
-        None
     }
 
     pub fn get_all_mut(&mut self) -> &mut Vec<Monster> {

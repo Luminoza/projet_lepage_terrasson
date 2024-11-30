@@ -1,13 +1,30 @@
+/**
+ * Module des entités
+ * Utile pour gérer les entités du jeu
+ * 
+ * Auteur : Nathan LEPAGE
+ */
+
+/**
+ * Importation des modules
+ */
 use core::str;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Copy, Deserialize, Eq, Hash, PartialEq)]
+
+/**
+ * Enumération des types d'entités
+ */
 pub enum EntityType {
     Player,
     Monster,
 }
 
 #[derive(Debug, Clone)]
+/**
+ * Structure d'une entité
+ */
 pub struct Entity {
     pub name: String,
     pub icon: String,

@@ -1,3 +1,13 @@
+/**
+ * Module Combat
+ * Utile pour gérer les combats du jeu
+ * 
+ * Auteur :  Nathan LEPAGE & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use crate::entities::entity::EntityTrait;
 use crate::entities::monster::Monster;
 use crate::entities::player::Player;

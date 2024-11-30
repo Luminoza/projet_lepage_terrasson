@@ -1,12 +1,30 @@
+/**
+ * Module monster
+ * Utile pour gérer les monstres du jeu
+ * 
+ * Auteur : Nathan LEPAGE & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use super::entity::{Entity, EntityTrait, EntityType};
 use crate::entities::player::Player;
+
 use rand::Rng;
 use std::collections::HashMap;
 use std::fs;
 
+/**
+ * Chemin du fichier JSON
+ */
 const FILE_PATH: &str = "./src/entities/monsters.json";
 
 #[derive(serde::Deserialize)]
+
+/**
+ * Structure des données d'une entité
+ */
 struct EntityData {
     name: String,
     icon: String,
@@ -16,6 +34,10 @@ struct EntityData {
 }
 
 #[derive(Debug, Clone, serde::Deserialize, PartialEq, Eq, Hash)]
+
+/**
+ * Enumération des types de monstres
+ */
 pub enum MonsterType {
     Player,
     Dino,
@@ -28,6 +50,10 @@ pub enum MonsterType {
 }
 
 #[derive(Debug, Clone)]
+
+/**
+ * Structure d'un monstre
+ */
 pub struct Monster {
     base: Entity,
 }
@@ -48,6 +74,9 @@ pub fn get_random_monster(position: (usize, usize)) -> Monster {
     }
 }
 
+/**
+ * Implémentation du monstre
+ */
 impl Monster {
 
     /**
@@ -83,6 +112,9 @@ impl Monster {
     }
 }
 
+/**
+ * Implémentation du trait pour les monstres
+ */
 impl EntityTrait for Monster {
 
     /**
@@ -184,10 +216,16 @@ impl EntityTrait for Monster {
     }
 }
 
+/**
+ * Structure du gestionnaire de monstres
+ */
 pub struct MonsterManager {
     monsters: Vec<Monster>,
 }
 
+/**
+ * Implémentation du gestionnaire de monstres
+ */
 impl MonsterManager {
 
     /**

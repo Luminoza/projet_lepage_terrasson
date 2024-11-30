@@ -1,3 +1,13 @@
+/**
+ * Module grid
+ * Utile pour gérer la grille de jeu
+ * 
+ * Auteur : Antonin TERRASSON & Nathan LEPAGE
+ */
+
+/**
+ * Importation des modules
+ */
 use rand::prelude::*;
 use rand::Rng;
 use std::collections::HashSet;
@@ -11,6 +21,10 @@ use crate::equipments::equipment::{Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
 use crate::ui::UI;
 
+
+/**
+ * Constantes pour les icônes
+ */
 const WALL_ICON: &str = "🟧";
 const NO_WALL_ICON: &str = "⬛️";
 const GOAL_ICON: &str = "👑";
@@ -38,7 +52,11 @@ pub struct Grid {
     ui: UI,
 }
 
+/**
+ * Implémentation de la grille
+ */
 impl Grid {
+
     /**
      * Constructeur pour initialiser une nouvelle grille
      * @param size Taille de la grille

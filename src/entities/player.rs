@@ -1,13 +1,31 @@
+/**
+ * Module player
+ * Utile pour gérer le joueur
+ * 
+ * Auteur : Nathan LEPAGE  & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use super::entity::{Entity, EntityTrait, EntityType};
 use crate::equipments::equipment::{Equipment, EquipmentType};
-use std::collections::HashMap;
-use std::fs;
 use crate::items::item::{Item, ItemType};
 use crate::entities::monster::Monster;
 
+use std::collections::HashMap;
+use std::fs;
+
+/**
+ * Chemin du fichier JSON
+ */
 const FILE_PATH: &str = "./src/entities/player.json";
 
 #[derive(serde::Deserialize)]
+
+/**
+ * Structure des données d'une entité
+ */
 struct EntityData {
     name: String,
     icon: String,
@@ -16,6 +34,9 @@ struct EntityData {
     atk: i32,
 }
 
+/**
+ * Structure du joueur
+ */
 pub struct Player {
     base: Entity,
     equipments: Vec<Equipment>,
@@ -23,6 +44,9 @@ pub struct Player {
     range: usize,
 }
 
+/**
+ * Implémentation du joueur
+ */
 impl Player {
 
     /**
@@ -159,6 +183,9 @@ impl Player {
     }
 }
 
+/**
+ * Implémentation du trait pour le joueur
+ */
 impl EntityTrait for Player {
 
     /**

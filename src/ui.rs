@@ -1,15 +1,32 @@
+/**
+ * Module ui
+ * Utile pour gérer l'interface utilisateur du jeu
+ * 
+ * Auteur : Nathan LEPAGE & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use crate::{
     equipments::equipment::Equipment,
     items::item::Item,
 };
 
 #[derive(Debug, Clone)]
+
+/**
+ * Structure de l'interface utilisateur
+ */
 pub struct UI {
     map_to_display: Vec<Vec<String>>,
     equipments_to_display: Vec<Equipment>,
     items_to_display: Vec<Item>,
 }
 
+/**
+ * Implémentation de l'interface utilisateur
+ */
 impl UI {
     pub fn new(size: usize) -> Self {
 
@@ -111,7 +128,7 @@ impl UI {
 }
 
 /**
- * 
+ * Fonction pour afficher un message de bienvenue
  */
 pub fn display_welcome_message() {
     println!("\n\n==========================================================================");
@@ -136,17 +153,25 @@ pub fn display_map_size() {
     print!("Entrez la taille de la carte: ");
 }
 
+/**
+ * Fonction pour afficher un message lors de la victoire
+ */
 pub fn display_victory_message() {
     println!("\n Félicitation ! Vous avez trouvé l'artefact !");
     println!("\n==================================================================================================================");
 }
 
-
+/**
+ * Fonction pour afficher un message lors de la défaite
+ */
 pub fn display_game_over_message() {
     println!("Game Over ! Vous êtes mort...");
     println!("\n==================================================================================================================");
 }
 
+/**
+ * Fonction pour afficher un message si le joueur souhate abandonner
+ */
 pub fn display_suicide_message() {
     println!("\nIndiana à préféré se suicider que d'essayer de survivre dans ce labyrinthe...");
     println!("\n==================================================================================================================");

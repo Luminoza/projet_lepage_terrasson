@@ -1,13 +1,27 @@
+/**
+ * Module des items
+ * Utile pour gérer les items du jeu
+ * 
+ * Auteur : Nathan LEPAGE
+ */
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 
 #[derive(Debug, PartialEq, Eq, Hash, Deserialize, Clone)]
+
+/**
+ * Enumération des types d'items
+ */
 pub enum ItemType {
     HealingPotion,
 }
 
 #[derive(Deserialize)]
+
+/**
+ * Structure des données d'un item
+ */
 struct ItemData {
     name: String,
     icon: String,
@@ -15,6 +29,10 @@ struct ItemData {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+
+/**
+ * Structure d'un item
+ */
 pub struct Item {
     name: String,
     icon: String,
@@ -25,9 +43,19 @@ pub struct Item {
     equiped: bool,
 }
 
+/**
+ * Chemin du fichier JSON
+ */
 const FILE_PATH: &str = "./src/items/items.json";
 
+/**
+ * Implémentation de l'item
+ */
 impl Item {
+
+    /**
+     * Crée un nouvel item
+     */
     pub fn new(item_type: ItemType, position: (usize, usize)) -> Item {
         let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
         let item_map: HashMap<ItemType, ItemData> =
@@ -121,10 +149,16 @@ impl Item {
     }
 }
 
+/**
+ * Structure du gestionnaire d'items
+ */
 pub struct ItemManager {
     items: Vec<Item>,
 }
 
+/**
+ * Implémentation du gestionnaire d'items
+ */
 impl ItemManager {
 
     /**

@@ -1,3 +1,13 @@
+/**
+ * Module des équipements
+ * Utile pour gérer les équipements du jeu
+ * 
+ * Auteur : Nathan LEPAGE
+ */
+
+/**
+ * Importation des modules
+ */
 use serde::Deserialize;
 use std::fs;
 use std::collections::HashMap;
@@ -18,12 +28,20 @@ pub enum EquipmentType {
 }
 
 #[derive(Deserialize)]
+
+/**
+ * Structure des données d'un équipement
+ */
 struct EquipmentData {
     name: String,
     icon: String,
     description: String,
 }
 #[derive(Debug, Clone)]
+
+/**
+ * Structure d'un équipement
+ */
 pub struct Equipment {
     name: String,
     icon: String,
@@ -34,6 +52,9 @@ pub struct Equipment {
     equiped: bool,
 }
 
+/**
+ * Chemin du fichier JSON
+ */
 const FILE_PATH: &str = "./src/equipments/equipment_data.json";
 
 impl Equipment {
@@ -137,11 +158,16 @@ impl Equipment {
     }
 }
 
-
+/**
+ * Structure du gestionnaire d'équipements
+ */
 pub struct EquipmentManager {
     equipments: Vec<Equipment>,
 }
 
+/**
+ * Implémentation du gestionnaire d'équipements
+ */
 impl EquipmentManager {
 
     /**

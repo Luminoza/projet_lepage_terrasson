@@ -1,3 +1,13 @@
+/**
+ * Module main
+ * Fichier principal du jeu
+ * 
+ * Auteur : Antonin TERRASSON & Nathan LEPAGE
+ */
+
+/**
+ * Importation des modules
+ */
 mod combat;
 mod entities;
 mod equipments;
@@ -10,6 +20,9 @@ mod ui;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+/**
+ * Fonction principale
+ */
 fn main() {
 
     // Affichage des messages de bienvenue et de demande de taille de la carte

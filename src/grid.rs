@@ -79,8 +79,7 @@ impl Grid {
 
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
-        self.ui
-            .update_equipments(self.player.get_equipment().clone());
+        self.ui.update_equipments(self.player.get_equipment().clone());
         self.ui.update_items(self.player.get_items().clone());
     }
 
@@ -231,7 +230,6 @@ impl Grid {
             "".to_string(),
             "--------------------- Déplacement ----------------------".to_string(),
             "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
-            "\tEntrez votre déplacement".to_string(),
         ]);
     }
 
@@ -322,7 +320,7 @@ impl Grid {
      * Déplace le joueur en fonction de l'entrée utilisateur
      * @param player Le joueur actuel
      */
-    pub fn move_monster(&mut self) {
+    pub fn move_monsters(&mut self) {
         let player_position = self.player.get_position();
         let mut new_positions = Vec::new();
         let monster_positions: Vec<_> = self
@@ -369,7 +367,6 @@ impl Grid {
                     new_positions.push((mx, my));
                 }
             }
-            self.display();
             self.check_for_combat(false);
         }
     }
@@ -381,22 +378,11 @@ impl Grid {
             'q' if x > 0 => (x - 1, y),               // Move left
             's' if y < self.size - 1 => (x, y + 1), // Move down
             'd' if x < self.size - 1 => (x + 1, y),  // Move right
-            _ => {
-                self.ui.display_game_view_and_message(vec![
-                    "------------------ Déplacement -------------------".to_string(),
-                    "\tMouvement invalide".to_string(),
-                ]);
-                return;
-            }
+            _ => return,
         };
 
         if !self.walls.contains(&new_position) {
             self.player.set_position(new_position);
-        } else {
-            self.ui.display_game_view_and_message(vec![
-                "------------------ Déplacement -------------------".to_string(),
-                "\tVous ne pouvez pas traverser un mur !".to_string(),
-            ]);
         }
         self.last_movement = movement;
         self.just_flee = false;

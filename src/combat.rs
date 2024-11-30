@@ -1,10 +1,8 @@
-use crossterm::terminal::enable_raw_mode;
-
 use crate::entities::entity::EntityTrait;
 use crate::entities::monster::Monster;
 use crate::entities::player::Player;
 use crate::items::item::ItemType;
-use crate::read_active_key;
+use crate::read_key;
 use crate::ui::UI;
 
 pub fn start_combat(
@@ -17,30 +15,33 @@ pub fn start_combat(
 
     ui.display_game_view_and_message(vec![
         "".to_string(),
-                        "--------------------- ❌ Combat ❌ ---------------------".to_string(),
+        "--------------------- ❌ Combat ❌ ---------------------".to_string(),
         if can_flee {
             format!(
-                "\t{} à déclanché un combat contre {}",
+                "{} à déclanché un combat contre {}",
                 player.get_name(),
                 monster.get_name()
             )
         } else {
             format!(
-                "\t{} à déclanché un combat contre {}",
+                "{} à déclanché un combat contre {}",
                 monster.get_name(),
                 player.get_name()
             )
         },
         if !can_flee {
-            format!("\tVous ne pouvez pas fuir")
+            format!("Vous ne pouvez pas fuir")
         } else {
             String::new()
         },
         if can_flee {
-            format!("Règles de combat : A attaquer, F fuir, P potion")
+            format!(
+                "Règles de combat : A attaquer, F fuir, P potion")
         } else {
-            format!("Règles de combat : A attaquer, P potion")
+            format!(
+                "Règles de combat : A attaquer, P potion")
         },
+        "".to_string(),
         format!(
             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
             turn,
@@ -51,11 +52,11 @@ pub fn start_combat(
             monster.get_name(),
             monster.get_health()
         ),
+        "".to_string(),
     ]);
 
     loop {
-        enable_raw_mode().unwrap();
-        let action = read_active_key();
+        let action = read_key();
 
         match action {
             'a' => {
@@ -79,8 +80,9 @@ pub fn start_combat(
                             monster.get_name(),
                             monster.get_health()
                         ),
-                        "\tVous avez gagné le combat! 🎉".to_string(),
-                        "\tAppuyez sur une touche pour continuer".to_string(),
+                        "".to_string(),
+                        "Vous avez gagné le combat! 🎉".to_string(),
+                        "Appuyez sur une touche pour continuer".to_string(),
                     ]);
                     return true;
                 }
@@ -94,6 +96,7 @@ pub fn start_combat(
                         } else {
                             format!("Règles de combat : A attaquer, P potion")
                         },
+                        "".to_string(),
                         format!(
                             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                             turn,
@@ -104,18 +107,20 @@ pub fn start_combat(
                             monster.get_name(),
                             monster.get_health()
                         ),
-                        "\tVous êtes mort 💀".to_string(),
+                        "".to_string(),
+                        "Vous êtes mort 💀".to_string(),
                     ]);
                     return false;
                 }
                 ui.display_game_view_and_message(vec![
                     "".to_string(),
-                        "--------------------- ❌ Combat ❌ ---------------------".to_string(),
+                    "--------------------- ❌ Combat ❌ ---------------------".to_string(),
                     if can_flee {
                         format!("Règles de combat : A attaquer, F fuir, P potion")
                     } else {
                         format!("Règles de combat : A attaquer, P potion")
                     },
+                    "".to_string(),
                     format!(
                         "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                         turn,
@@ -126,8 +131,9 @@ pub fn start_combat(
                         monster.get_name(),
                         monster.get_health()
                     ),
-                    format!("\t{} attaque {} !", player.get_name(), monster.get_name()),
-                    format!("\t{} attaque {} !", monster.get_name(), player.get_name()),
+                    "".to_string(),
+                    format!("{} attaque {} !", player.get_name(), monster.get_name()),
+                    format!("{} attaque {} !", monster.get_name(), player.get_name()),
                 ]);
             }
             'p' => {
@@ -141,6 +147,7 @@ pub fn start_combat(
                     } else {
                         format!("Règles de combat : A attaquer, P potion")
                     },
+                    "".to_string(),
                     format!(
                         "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                         turn,
@@ -151,8 +158,9 @@ pub fn start_combat(
                         monster.get_name(),
                         monster.get_health()
                     ),
-                    format!("\t{} attaque {} !", player.get_name(), monster.get_name()),
-                    format!("\t{} attaque {} !", monster.get_name(), player.get_name()),
+                    "".to_string(),
+                    format!("{} attaque {} !", player.get_name(), monster.get_name()),
+                    format!("{} attaque {} !", monster.get_name(), player.get_name()),
                 ]);
             }
             'f' => {
@@ -165,6 +173,7 @@ pub fn start_combat(
                         } else {
                             format!("Règles de combat : A attaquer, P potion")
                         },
+                        "".to_string(),
                         format!(
                             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                             turn,
@@ -175,8 +184,9 @@ pub fn start_combat(
                             monster.get_name(),
                             monster.get_health()
                         ),
-                        "\tVous avez fui le combat !".to_string(),
-                        "\tAppuyez sur une touche pour continuer".to_string(),
+                        "".to_string(),
+                        "Vous avez fui le combat !".to_string(),
+                        "Appuyez sur une touche pour continuer".to_string(),
                     ]);
                     return false;
                 } else {
@@ -188,6 +198,7 @@ pub fn start_combat(
                         } else {
                             format!("Règles de combat : A attaquer, P potion")
                         },
+                        "".to_string(),
                         format!(
                             "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                             turn,
@@ -198,7 +209,8 @@ pub fn start_combat(
                             monster.get_name(),
                             monster.get_health()
                         ),
-                        "\tChoix invalide !".to_string(),
+                        "".to_string(),
+                        "Choix invalide !".to_string(),
                     ]);
                 }
             }
@@ -210,6 +222,7 @@ pub fn start_combat(
                 } else {
                     format!("Règles de combat : A attaquer, P potion")
                 },
+                "".to_string(),
                 format!(
                     "Tour {}: {} {}: {} Hp vs {} {}: {} Hp",
                     turn,
@@ -220,7 +233,8 @@ pub fn start_combat(
                     monster.get_name(),
                     monster.get_health()
                 ),
-                "\tChoix invalide !".to_string(),
+                "".to_string(),
+                "Choix invalide !".to_string(),
             ]),
         }
         turn += 1;

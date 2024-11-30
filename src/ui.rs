@@ -43,7 +43,9 @@ impl UI {
     }
 
     pub fn display_game_view_and_message(&self, additional_lines: Vec<String>) {
+        
         let mut item_counts = std::collections::HashMap::new();
+
         for item in &self.items_to_display {
             let entry = item_counts.entry(item.get_name()).or_insert((
                 item.get_icon(),
@@ -55,10 +57,13 @@ impl UI {
 
         let mut additional_line_index = 0;
 
+        print!("\n");
+
         for y in 0..self.map_to_display.len() {
             for x in 0..self.map_to_display[y].len() {
                 print!("{}", self.map_to_display[x][y]);
             }
+
             if y == 0 {
                 print!("\tEquipments:");
             } else if y <= self.equipments_to_display.len() {

@@ -1,3 +1,13 @@
+/**
+ * Module main
+ * Fichier principal du jeu
+ * 
+ * Auteur : Antonin TERRASSON & Nathan LEPAGE
+ */
+
+/**
+ * Importation des modules
+ */
 mod combat;
 mod entities;
 mod equipments;
@@ -10,23 +20,32 @@ mod ui;
 use std::sync::{Arc, Mutex};
 use std::thread;
 
+/**
+ * Fonction principale
+ */
 fn main() {
+
+    // Affichage des messages de bienvenue et de demande de taille de la carte
     ui::display_welcome_message();
     ui::display_map_size();
     let size = read_number();
 
+    // Initialisation de la grille et de l'interface utilisateur
     let ui = ui::UI::new(size);
     let grid = Arc::new(Mutex::new(Grid::new(size, ui)));
 
     grid.lock().unwrap().init();
 
+    // Clonage de la grille pour les différents threads
     let grid_player = Arc::clone(&grid);
     let grid_monster = Arc::clone(&grid);
-    let grid_1 = Arc::clone(&grid);
+    let grid_heath = Arc::clone(&grid);
 
+    // Création de variables pour les threads
     let player_moved = Arc::new(Mutex::new(false));
     let monster_moved = Arc::new(Mutex::new(false));
 
+    // Clonage des variables pour les différents threads
     let player_moved_clone = Arc::clone(&player_moved);
     let monster_moved_clone = Arc::clone(&monster_moved);
 
@@ -55,13 +74,14 @@ fn main() {
     // Thread pour ajouter 10 points de vie au joueur toutes les 10 sec
     thread::spawn(move || loop {
         thread::sleep(std::time::Duration::from_millis(10000));
-        grid_1.lock().unwrap().heal_player(10);
+        grid_heath.lock().unwrap().heal_player(10);
     });
 
     loop {
         let mut player_moved = player_moved.lock().unwrap();
         let mut monster_moved = monster_moved.lock().unwrap();
 
+        // Affichage de la grille si le joueur ou un monstre a bougé
         if *player_moved || *monster_moved {
             grid.lock().unwrap().display();
             *player_moved = false;
@@ -71,6 +91,7 @@ fn main() {
             grid.lock().unwrap().check_for_combat(true);
         }
 
+        // Si le joueur a gagné ou perdu, on affiche un message et on quitte le jeu
         if grid.lock().unwrap().has_won() {
             ui::display_victory_message();
             std::process::exit(0);
@@ -81,6 +102,9 @@ fn main() {
     }
 }
 
+/**
+ * Fonction pour lire un nombre depuis l'entrée standard
+ */
 fn read_number() -> usize {
     use std::io::{self, Write};
 
@@ -91,6 +115,9 @@ fn read_number() -> usize {
     input.trim().parse::<usize>().unwrap()
 }
 
+/**
+ * Fonction pour lire un caractère depuis l'entrée standard
+ */
 fn read_key() -> char {
     use std::io::{self, Write};
 
@@ -102,10 +129,12 @@ fn read_key() -> char {
     key
 }
 
+// /**
+//  * Fonction pour lire un caractère en continu depuis l'entrée standard
+//  */
 // fn read_active_key() -> char {
 //     use crossterm::event::{self, KeyCode};
 //     use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-
 //     enable_raw_mode().unwrap();
 //     let key = match event::read().unwrap() {
 //         event::Event::Key(event::KeyEvent { code: KeyCode::Char(c), .. }) => c,

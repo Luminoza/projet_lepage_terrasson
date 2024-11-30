@@ -1,13 +1,27 @@
+/**
+ * Module des items
+ * Utile pour gérer les items du jeu
+ * 
+ * Auteur : Nathan LEPAGE
+ */
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
 
 #[derive(Debug, PartialEq, Eq, Hash, Deserialize, Clone)]
+
+/**
+ * Enumération des types d'items
+ */
 pub enum ItemType {
     HealingPotion,
 }
 
 #[derive(Deserialize)]
+
+/**
+ * Structure des données d'un item
+ */
 struct ItemData {
     name: String,
     icon: String,
@@ -15,6 +29,10 @@ struct ItemData {
 }
 
 #[derive(Debug, PartialEq, Clone)]
+
+/**
+ * Structure d'un item
+ */
 pub struct Item {
     name: String,
     icon: String,
@@ -25,9 +43,19 @@ pub struct Item {
     equiped: bool,
 }
 
+/**
+ * Chemin du fichier JSON
+ */
 const FILE_PATH: &str = "./src/items/items.json";
 
+/**
+ * Implémentation de l'item
+ */
 impl Item {
+
+    /**
+     * Crée un nouvel item
+     */
     pub fn new(item_type: ItemType, position: (usize, usize)) -> Item {
         let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
         let item_map: HashMap<ItemType, ItemData> =
@@ -45,30 +73,44 @@ impl Item {
         }
     }
 
+    /**
+     * Retourne le nom de l'item
+     */
     pub fn get_name(&self) -> &str {
         &self.name
     }
 
+    /**
+     * Retourne l'icone de l'item
+     */
     pub fn get_icon(&self) -> &str {
         self.icon.as_str()
     }
 
+    /**
+     * Retourne la description de l'item
+     */
     pub fn get_description(&self) -> &str {
         &self.description
     }
 
+    /**
+     * Retourne la position de l'item
+     */
     pub fn get_position(&self) -> (usize, usize) {
         self.position
     }
 
-    // pub fn set_position(&mut self, position: (usize, usize)) {
-    //     self.position = position;
-    // }
-
+    /**
+     * Retourne le type de l'item
+     */
     pub fn get_type(&self) -> &ItemType {
         &self.item_type
     }
 
+    /**
+     * Retourne un item aléatoire
+     */
     pub fn random() -> ItemType {
         use rand::Rng;
         let mut rng = rand::thread_rng();
@@ -78,36 +120,64 @@ impl Item {
         }
     }
 
+    /**
+     * Retourne si l'item est visible
+     */
     pub fn is_visible(&self) -> bool {
         self.visible
     }
 
+    /**
+     * Définit si l'item est visible
+     */
     pub fn set_visible(&mut self, visible: bool) {
         self.visible = visible;
     }
 
+    /**
+     * Retourne si l'item est équipé
+     */
     pub fn is_equiped(&self) -> bool {
         self.equiped
     }
 
+    /**
+     * Définit si l'item est équipé
+     */
     pub fn set_equiped(&mut self, equiped: bool) {
         self.equiped = equiped;
     }
 }
 
+/**
+ * Structure du gestionnaire d'items
+ */
 pub struct ItemManager {
     items: Vec<Item>,
 }
 
+/**
+ * Implémentation du gestionnaire d'items
+ */
 impl ItemManager {
+
+    /**
+     * Crée un nouveau gestionnaire d'items
+     */
     pub fn new() -> ItemManager {
         ItemManager { items: Vec::new() }
     }
 
+    /**
+     * Ajoute un item au gestionnaire
+     */
     pub fn add(&mut self, item: Item) {
         self.items.push(item);
     }
 
+    /**
+     * Retourne les items dans une certaine portée de joueur
+     */
     pub fn within_range(&self, position: (usize, usize), range: usize) -> Vec<&Item> {
         self.items
             .iter()
@@ -119,10 +189,16 @@ impl ItemManager {
             .collect()
     }
 
+    /**
+     * Retourne si une position est occupée par un item
+     */
     pub fn is_position_occupied(&self, position: (usize, usize)) -> bool {
         self.items.iter().any(|item| item.get_position() == position)
     }
 
+    /**
+     * Retourne un item mutable à une certaine position
+     */
     pub fn get_mut(&mut self, position: (usize, usize)) -> Option<&mut Item> {
         for item in &mut self.items {
             if item.get_position() == position {

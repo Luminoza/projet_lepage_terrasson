@@ -1,15 +1,32 @@
+/**
+ * Module ui
+ * Utile pour gérer l'interface utilisateur du jeu
+ * 
+ * Auteur : Nathan LEPAGE & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use crate::{
     equipments::equipment::Equipment,
     items::item::Item,
 };
 
 #[derive(Debug, Clone)]
+
+/**
+ * Structure de l'interface utilisateur
+ */
 pub struct UI {
     map_to_display: Vec<Vec<String>>,
     equipments_to_display: Vec<Equipment>,
     items_to_display: Vec<Item>,
 }
 
+/**
+ * Implémentation de l'interface utilisateur
+ */
 impl UI {
     pub fn new(size: usize) -> Self {
 
@@ -30,18 +47,30 @@ impl UI {
         }
     }
 
+    /**
+     * Met à jour la carte à afficher
+     */
     pub fn update_map(&mut self, map: Vec<Vec<String>>) {
         self.map_to_display = map;
     }
 
+    /**
+     * Met à jour les équipements à afficher
+     */
     pub fn update_equipments(&mut self, equipments: Vec<Equipment>) {
         self.equipments_to_display = equipments;
     }
 
+    /**
+     * Met à jour les items à afficher
+     */
     pub fn update_items(&mut self, items: Vec<Item>) {
         self.items_to_display = items;
     }
 
+    /**
+     * Affiche la vue du jeu
+     */
     pub fn display_game_view_and_message(&self, additional_lines: Vec<String>) {
         
         let mut item_counts = std::collections::HashMap::new();
@@ -57,6 +86,7 @@ impl UI {
 
         let mut additional_line_index = 0;
 
+        print!("\n");
         print!("\n");
 
         for y in 0..self.map_to_display.len() {
@@ -97,6 +127,9 @@ impl UI {
     }
 }
 
+/**
+ * Fonction pour afficher un message de bienvenue
+ */
 pub fn display_welcome_message() {
     println!("\n\n==========================================================================");
     println!("=== Bienvenue dans l'aventure RPG Indiana Jones (TaTala Ta TataLAAAAA) ===");
@@ -113,20 +146,32 @@ pub fn display_welcome_message() {
     );
 }
 
+/**
+ * Fonction pour afficher un message de demande de taille de la carte
+ */
 pub fn display_map_size() {
     print!("Entrez la taille de la carte: ");
 }
 
+/**
+ * Fonction pour afficher un message lors de la victoire
+ */
 pub fn display_victory_message() {
     println!("\n Félicitation ! Vous avez trouvé l'artefact !");
     println!("\n==================================================================================================================");
 }
 
+/**
+ * Fonction pour afficher un message lors de la défaite
+ */
 pub fn display_game_over_message() {
     println!("Game Over ! Vous êtes mort...");
     println!("\n==================================================================================================================");
 }
 
+/**
+ * Fonction pour afficher un message si le joueur souhate abandonner
+ */
 pub fn display_suicide_message() {
     println!("\nIndiana à préféré se suicider que d'essayer de survivre dans ce labyrinthe...");
     println!("\n==================================================================================================================");

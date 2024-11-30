@@ -1,3 +1,13 @@
+/**
+ * Module Combat
+ * Utile pour gérer les combats du jeu
+ * 
+ * Auteur :  Nathan LEPAGE & Antonin TERRASSON
+ */
+
+/**
+ * Importation des modules
+ */
 use crate::entities::entity::EntityTrait;
 use crate::entities::monster::Monster;
 use crate::entities::player::Player;
@@ -5,6 +15,9 @@ use crate::items::item::ItemType;
 use crate::read_key;
 use crate::ui::UI;
 
+/**
+ * Fonction pour démarrer un combat entre un joueur et un monstre
+ */
 pub fn start_combat(
     can_flee: bool,
     player: &mut Player,

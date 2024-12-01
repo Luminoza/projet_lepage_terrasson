@@ -52,14 +52,12 @@ impl Player {
     /**
      * Crée un nouveau joueur
      */
-    pub fn new(position: (usize, usize)) -> Player {
-        let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
-        let entity_map: HashMap<String, EntityData> =
-            serde_json::from_str(&data).expect("JSON was not well-formatted");
-
-        let entity_data = entity_map.get("Player").expect("Player data not found");
+    pub fn new(position: (usize, usize)) -> Result<Player, Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(FILE_PATH)?;
+        let entity_map: HashMap<String, EntityData> = serde_json::from_str(&data)?;
+        let entity_data = entity_map.get("Player").ok_or("Player data not found")?;
         let range = 2;
-        Player {
+        Ok(Player {
             base: Entity {
                 name: entity_data.name.clone(),
                 icon: entity_data.icon.clone(),
@@ -73,7 +71,7 @@ impl Player {
             equipments: Vec::new(),
             items: Vec::new(),
             range,
-        }
+        })
     }
 
     /**

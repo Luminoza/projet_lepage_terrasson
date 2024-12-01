@@ -74,7 +74,7 @@ impl Grid {
 
         Grid {
             size,
-            player: Player::new((0, 0)),
+            player: Player::new((0, 0)).unwrap(),
             last_movement: ' ',
             just_flee: false,
             monsters: MonsterManager::new(),
@@ -93,9 +93,9 @@ impl Grid {
      */
     pub fn init(&mut self) {
         self.place_walls();
-        self.place_items((self.size * self.size) / 50);
-        self.place_equipments((self.size * self.size) / 50);
-        self.place_monsters((self.size * self.size) / 100);
+        self.place_items((self.size * self.size) / 50).unwrap();
+        self.place_equipments((self.size * self.size) / 50).unwrap();
+        self.place_monsters((self.size * self.size) / 100).unwrap();
         self.update_ui();
     }
 
@@ -194,26 +194,26 @@ impl Grid {
      * Place des objets aléatoirement sur la grille
      * @param count Nombre d'objets à placer
      */
-    pub fn place_items(&mut self, count: usize) {
+    pub fn place_items(&mut self, count: usize) -> Result<(), Box<dyn std::error::Error>> {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
                 let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
 
                 if self.is_position_empty(position) {
-                    self.items
-                        .add(Item::new(Item::random(), (position.0, position.1)));
+                    self.items.add(Item::new(Item::random(), (position.0, position.1))?);
                     break;
                 }
             }
         }
+        Ok(())
     }
 
     /**
      * Place des equipements aléatoirement sur la grille
      * @param count Nombre d'objets à placer
      */
-    pub fn place_equipments(&mut self, count: usize) {
+    pub fn place_equipments(&mut self, count: usize) -> Result<(), Box<dyn std::error::Error>> {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
@@ -223,29 +223,30 @@ impl Grid {
                     self.equipments.add(Equipment::new(
                         Equipment::random(),
                         (position.0, position.1),
-                    ));
+                    )?);
                     break;
                 }
             }
         }
+        Ok(())
     }
 
     /**
      * Place des monstres aléatoirement sur la grille
      * @param count Nombre d'ennemis à placer
      */
-    pub fn place_monsters(&mut self, count: usize) {
+    pub fn place_monsters(&mut self, count: usize) -> Result<(), Box<dyn std::error::Error>> {
         let mut rng = rand::thread_rng();
         for _ in 0..count {
             loop {
                 let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
                 if self.is_position_empty(position) {
-                    self.monsters
-                        .add(monster::get_random_monster((position.0, position.1)));
+                    self.monsters.add(monster::get_random_monster((position.0, position.1)));
                     break;
                 }
             }
         }
+        Ok(())
     }
 
     /**
@@ -269,12 +270,14 @@ impl Grid {
     pub fn display(&mut self) {
         self.build_map();
         self.update_ui();
-        self.ui.display_game_view_and_message(vec![
+        if let Err(e) = self.ui.display_game_view_and_message(vec![
             "".to_string(),
             "--------------------- Déplacement ----------------------".to_string(),
             "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
             "Appuyer sur entré pour valider".to_string(),
-        ]);
+        ]) {
+            eprintln!("Error displaying game view: {}", e);
+        }
     }
 
     /**
@@ -321,7 +324,7 @@ impl Grid {
                 if !equipment.is_equiped() {
                     if self.player.has_equipment(equipment.get_type()) {
                         self.player
-                            .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()));
+                            .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()).unwrap());
                     } else {
                         if equipment.get_type() == EquipmentType::Hat {
                             self.player.set_range(5);

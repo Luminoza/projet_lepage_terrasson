@@ -26,7 +26,7 @@ pub fn start_combat(
 ) -> bool {
     let mut turn = 1;
 
-    ui.display_game_view_and_message(vec![
+    if let Err(_) = ui.display_game_view_and_message(vec![
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
         if can_flee {
@@ -66,10 +66,22 @@ pub fn start_combat(
             monster.get_health()
         ),
         "".to_string(),
-    ]);
+    ]) {
+        return false;
+    }
 
     loop {
-        let action = read_key();
+        let action = match read_key() {
+            Ok(key) => key,
+            Err(_) => {
+                ui.display_game_view_and_message(vec![
+                    "".to_string(),
+                    "--------------------- ❌ Combat ❌ ---------------------".to_string(),
+                    "Erreur de lecture de la touche. Veuillez réessayer.".to_string(),
+                ]).unwrap();
+                continue;
+            }
+        };
 
         match action {
             'a' => {
@@ -96,7 +108,7 @@ pub fn start_combat(
                         "".to_string(),
                         "Vous avez gagné le combat! 🎉".to_string(),
                         "Appuyez sur une touche pour continuer".to_string(),
-                    ]);
+                    ]).unwrap();
                     return true;
                 }
                 monster.attack(player);
@@ -122,7 +134,7 @@ pub fn start_combat(
                         ),
                         "".to_string(),
                         "Vous êtes mort 💀".to_string(),
-                    ]);
+                    ]).unwrap();
                     return false;
                 }
                 ui.display_game_view_and_message(vec![
@@ -147,14 +159,14 @@ pub fn start_combat(
                     "".to_string(),
                     format!("{} attaque {} !", player.get_name(), monster.get_name()),
                     format!("{} attaque {} !", monster.get_name(), player.get_name()),
-                ]);
+                ]).unwrap();
             }
             'p' => {
                 player.use_item(ItemType::HealingPotion);
                 ui.update_items(player.get_items().clone());
                 ui.display_game_view_and_message(vec![
                     "".to_string(),
-                        "--------------------- ❌ Combat ❌ ---------------------".to_string(),
+                    "--------------------- ❌ Combat ❌ ---------------------".to_string(),
                     if can_flee {
                         format!("Règles de combat : A attaquer, F fuir, P potion")
                     } else {
@@ -174,7 +186,7 @@ pub fn start_combat(
                     "".to_string(),
                     format!("{} attaque {} !", player.get_name(), monster.get_name()),
                     format!("{} attaque {} !", monster.get_name(), player.get_name()),
-                ]);
+                ]).unwrap();
             }
             'f' => {
                 if can_flee {
@@ -200,7 +212,7 @@ pub fn start_combat(
                         "".to_string(),
                         "Vous avez fui le combat !".to_string(),
                         "Appuyez sur une touche pour continuer".to_string(),
-                    ]);
+                    ]).unwrap();
                     return false;
                 } else {
                     ui.display_game_view_and_message(vec![
@@ -224,12 +236,12 @@ pub fn start_combat(
                         ),
                         "".to_string(),
                         "Choix invalide !".to_string(),
-                    ]);
+                    ]).unwrap();
                 }
             }
             _ => ui.display_game_view_and_message(vec![
                 "".to_string(),
-                        "--------------------- ❌ Combat ❌ ---------------------".to_string(),
+                "--------------------- ❌ Combat ❌ ---------------------".to_string(),
                 if can_flee {
                     format!("Règles de combat : A attaquer, F fuir, P potion")
                 } else {
@@ -248,7 +260,7 @@ pub fn start_combat(
                 ),
                 "".to_string(),
                 "Choix invalide !".to_string(),
-            ]),
+            ]).unwrap(),
         }
         turn += 1;
     }

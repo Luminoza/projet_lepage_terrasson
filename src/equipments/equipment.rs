@@ -61,12 +61,12 @@ impl Equipment {
     /**
      * Crée un nouvel équipement
      */
-    pub fn new(equipment_type: EquipmentType, position: (usize, usize)) -> Equipment {
-        let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
-        let equipment_map: HashMap<EquipmentType, EquipmentData> = serde_json::from_str(&data).expect("JSON was not well-formatted");
-        let equipment_data = equipment_map.get(&equipment_type).expect("Equipment type not found");
+    pub fn new(equipment_type: EquipmentType, position: (usize, usize)) -> Result<Equipment, Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(FILE_PATH)?;
+        let equipment_map: HashMap<EquipmentType, EquipmentData> = serde_json::from_str(&data)?;
+        let equipment_data = equipment_map.get(&equipment_type).ok_or("Equipment type not found")?;
 
-        Equipment {
+        Ok(Equipment {
             name: equipment_data.name.clone(),
             icon: equipment_data.icon.clone(),
             description: equipment_data.description.clone(),
@@ -74,7 +74,7 @@ impl Equipment {
             position,
             visible: true,
             equiped: false,
-        }
+        })
     }
 
     /**

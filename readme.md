@@ -43,9 +43,9 @@ Voici une description détaillée de chaque fichier et de son rôle dans le proj
 
 ### [main.rs](./src/main.rs)
 
-- **Auteur : Antonin TERRASSON & Nathan LEPAGE**
+- **Auteur : Antonin TERRASSON**
 - **Longueur : 150 lignes**
-- **Description :** Le fichier principal du jeu. Il initialise la grille de jeu et l'interface utilisateur, et lance les différents threads pour gérer les actions du joueur, les mouvements des monstres, et la régénération de la santé du joueur. Il contient également les fonctions pour lire les entrées utilisateur.
+- **Description :** Le fichier principal du jeu. Il initialise la grille de jeu et l'interface utilisateur, et lance les différents threads pour gérer les actions du joueur, les mouvements des monstres, et la régénération de la santé du joueur. Des canaux sont utilisés pour communiquer entre les différents threads et mettre à jour l'état du jeu en temps réel.
 
 ### [utils.rs](./src/utils.rs)
 

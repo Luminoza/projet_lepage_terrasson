@@ -56,13 +56,12 @@ impl Item {
     /**
      * Crée un nouvel item
      */
-    pub fn new(item_type: ItemType, position: (usize, usize)) -> Item {
-        let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
-        let item_map: HashMap<ItemType, ItemData> =
-            serde_json::from_str(&data).expect("JSON was not well-formatted");
-        let item_data = item_map.get(&item_type).expect("Item type not found");
+    pub fn new(item_type: ItemType, position: (usize, usize)) -> Result<Item, Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(FILE_PATH)?;
+        let item_map: HashMap<ItemType, ItemData> = serde_json::from_str(&data)?;
+        let item_data = item_map.get(&item_type).ok_or("Item type not found")?;
 
-        Item {
+        Ok(Item {
             name: item_data.name.clone(),
             icon: item_data.icon.clone(),
             description: item_data.description.clone(),
@@ -70,7 +69,7 @@ impl Item {
             position,
             visible: true,
             equiped: false,
-        }
+        })
     }
 
     /**

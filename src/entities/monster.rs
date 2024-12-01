@@ -64,13 +64,13 @@ pub struct Monster {
 pub fn get_random_monster(position: (usize, usize)) -> Monster {
     let mut rng = rand::thread_rng();
     match rng.gen_range(0..100) {
-        0..=7 => Monster::new(MonsterType::Dragon, position),
-        8..=15 => Monster::new(MonsterType::Dino, position),
-        16..=30 => Monster::new(MonsterType::Whale, position),
-        31..=45 => Monster::new(MonsterType::Mosquito, position),
-        46..=60 => Monster::new(MonsterType::Boar, position),
-        61..=75 => Monster::new(MonsterType::Turkey, position),
-        _ => Monster::new(MonsterType::Snail, position),
+        0..=7 => Monster::new(MonsterType::Dragon, position).unwrap(),
+        8..=15 => Monster::new(MonsterType::Dino, position).unwrap(),
+        16..=30 => Monster::new(MonsterType::Whale, position).unwrap(),
+        31..=45 => Monster::new(MonsterType::Mosquito, position).unwrap(),
+        46..=60 => Monster::new(MonsterType::Boar, position).unwrap(),
+        61..=75 => Monster::new(MonsterType::Turkey, position).unwrap(),
+        _ => Monster::new(MonsterType::Snail, position).unwrap(),
     }
 }
 
@@ -82,15 +82,12 @@ impl Monster {
     /**
      * Crée un nouveau monstre
      */
-    fn new(monster_type: MonsterType, position: (usize, usize)) -> Self {
-        let data = fs::read_to_string(FILE_PATH).expect("Unable to read file");
-        let entity_map: HashMap<MonsterType, EntityData> =
-            serde_json::from_str(&data).expect("JSON was not well-formatted");
-        let entity_data = entity_map
-            .get(&monster_type)
-            .expect("Entity type not found");
+    fn new(monster_type: MonsterType, position: (usize, usize)) -> Result<Self, Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(FILE_PATH)?;
+        let entity_map: HashMap<MonsterType, EntityData> = serde_json::from_str(&data)?;
+        let entity_data = entity_map.get(&monster_type).ok_or("Entity type not found")?;
 
-        Monster {
+        Ok(Monster {
             base: Entity {
                 name: entity_data.name.clone(),
                 icon: entity_data.icon.clone(),
@@ -101,7 +98,7 @@ impl Monster {
                 position,
                 visible: true,
             },
-        }
+        })
     }
 
     /**

@@ -71,7 +71,7 @@ impl UI {
     /**
      * Affiche la vue du jeu
      */
-    pub fn display_game_view_and_message(&self, additional_lines: Vec<String>) {
+    pub fn display_game_view_and_message(&self, additional_lines: Vec<String>) -> Result<(), Box<dyn std::error::Error>> {
         
         let mut item_counts = std::collections::HashMap::new();
 
@@ -124,19 +124,20 @@ impl UI {
             println!();
         }
         println!();
+        Ok(())
     }
 }
 
 /**
  * Fonction pour afficher un message de bienvenue
  */
-pub fn display_welcome_message() {
+pub fn display_welcome_message() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n\n==========================================================================");
     println!("=== Bienvenue dans l'aventure RPG Indiana Jones (TaTala Ta TataLAAAAA) ===");
     println!("==========================================================================\n");
     println!("Votre mission : Atteignez l'artefact caché dans le labyrinthe, mais prennez garde aux monstres !");
     println!("Des artefacts secondaires peuvent vous aider à survivre...\n");
-    println!("Attention, des monstres rodent dans le labyrinthe, vous ne pourrez pas les fuires si ils vous attaquent !");
+    println!("Attention, des monstres rodent dans le labyrinthe, vous ne pourrez pas les fuir si ils vous attaquent !");
     println!("Carte ({} : joueur, {} : artefact, {} : objet, {} : ennemi, {} : mur) : \n",
     "🧍", // PLAYER_ICON
     "👑", // GOAL_ICON
@@ -144,35 +145,40 @@ pub fn display_welcome_message() {
     "💀", // DEFAULT_ENEMY_ICON
     "🟧", // WALL_ICON
     );
+    Ok(())
 }
 
 /**
  * Fonction pour afficher un message de demande de taille de la carte
  */
-pub fn display_map_size() {
+pub fn display_map_size() -> Result<(), Box<dyn std::error::Error>> {
     print!("Entrez la taille de la carte: ");
+    Ok(())
 }
 
 /**
  * Fonction pour afficher un message lors de la victoire
  */
-pub fn display_victory_message() {
+pub fn display_victory_message() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n Félicitation ! Vous avez trouvé l'artefact !");
     println!("\n==================================================================================================================");
+    Ok(())
 }
 
 /**
  * Fonction pour afficher un message lors de la défaite
  */
-pub fn display_game_over_message() {
+pub fn display_game_over_message() -> Result<(), Box<dyn std::error::Error>> {
     println!("Game Over ! Vous êtes mort...");
     println!("\n==================================================================================================================");
+    Ok(())
 }
 
 /**
- * Fonction pour afficher un message si le joueur souhate abandonner
+ * Fonction pour afficher un message si le joueur souhaite abandonner
  */
-pub fn display_suicide_message() {
+pub fn display_suicide_message() -> Result<(), Box<dyn std::error::Error>> {
     println!("\nIndiana à préféré se suicider que d'essayer de survivre dans ce labyrinthe...");
     println!("\n==================================================================================================================");
+    Ok(())
 }

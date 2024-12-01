@@ -90,11 +90,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let message = rx.recv().unwrap();
 
         // Affichage de la grille si le joueur ou un monstre a bougé
-        if message == "player_moved" || message == "monster_moved" {
+        if message == "player_moved" {
             grid.lock().unwrap().display();
             grid.lock().unwrap().check_for_item();
             grid.lock().unwrap().check_for_equipment();
             grid.lock().unwrap().check_for_combat(true);
+            grid.lock().unwrap().display();
+        }else if message == "monster_moved"{
+            grid.lock().unwrap().display();
+            grid.lock().unwrap().check_for_combat(false);
             grid.lock().unwrap().display();
         }
 

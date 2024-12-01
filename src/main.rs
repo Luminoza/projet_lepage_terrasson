@@ -74,7 +74,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Thread pour gérer les mouvements des monstres
     thread::spawn(move || loop {
-        thread::sleep(std::time::Duration::from_millis(5000));
+        thread::sleep(std::time::Duration::from_millis(1000));
         grid_monster.lock().unwrap().move_monsters();
         tx_monster.send("monster_moved").unwrap();
     });

@@ -498,6 +498,10 @@ impl Grid {
             'q' => self.move_player('d'),
             's' => self.move_player('z'),
             'd' => self.move_player('q'),
+            'Z' => self.move_player('S'),
+            'Q' => self.move_player('D'),
+            'S' => self.move_player('Z'),
+            'D' => self.move_player('Q'),
             _ => {}
         };
         self.just_flee = true;

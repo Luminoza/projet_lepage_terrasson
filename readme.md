@@ -2,6 +2,8 @@
 
 Auteurs : Nathan LEPAGE & Antonin TERRASSON
 
+---
+
 ## Table des matières
 - [Projet RPG Indiana Jones](#projet-rpg-indiana-jones)
   - [Table des matières](#table-des-matières)
@@ -21,6 +23,8 @@ Auteurs : Nathan LEPAGE & Antonin TERRASSON
   - [Conclusion](#conclusion)
     - [Total des lignes de code : 1500 lignes](#total-des-lignes-de-code--1500-lignes)
 
+---
+
 ## Présentation du projet
 
 Bienvenue dans notre projet de jeu RPG inspiré par Indiana Jones ! 
@@ -35,7 +39,12 @@ Vous êtes Indiana Jones, l'explorateur légendaire, et vous avez entendu parler
 
 Mais attention, chaque pas peut être votre dernier, et les monstres rôdent dans l'ombre, prêts à vous attaquer à tout moment.
 
+---
+---
+
 ## Structure du code
+
+Lien Github du projet : [Github/projet_lepage_terrasson](https://github.com/Luminoza/projet_lepage_terrasson)
 
 Le projet est structuré en plusieurs modules, chacun responsable d'une partie spécifique du jeu. 
 
@@ -101,12 +110,12 @@ Voici une description détaillée de chaque fichier et de son rôle dans le proj
 - **Longueur : 100 lignes**
 - **Description :** Ce module gère les équipements du jeu. Il définit la structure `Equipment` et ses méthodes associées, ainsi que le gestionnaire d'équipements `EquipmentManager`. Il permet de créer, gérer et manipuler les équipements dans le jeu.
 
+---
+
 ## Conclusion
 
-### Total des lignes de code : 1500 lignes
+**Total des lignes de code : 1500 lignes**
 
 Nous espérons que vous apprécierez jouer à ce jeu autant que nous avons apprécié le développer. 
-
 Bonne chance, et que l'aventure commence !
-
 Nathan & Antonin

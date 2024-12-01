@@ -9,6 +9,7 @@ Auteurs : Nathan LEPAGE & Antonin TERRASSON
   - [Contexte historique](#contexte-historique)
   - [Structure du code](#structure-du-code)
     - [main.rs](#mainrs)
+    - [utils.rs](#utilsrs)
     - [ui.rs](#uirs)
     - [grid.rs](#gridrs)
     - [entity.rs](#entityrs)
@@ -45,6 +46,12 @@ Voici une description détaillée de chaque fichier et de son rôle dans le proj
 - **Auteur : Antonin TERRASSON & Nathan LEPAGE**
 - **Longueur : 150 lignes**
 - **Description :** Le fichier principal du jeu. Il initialise la grille de jeu et l'interface utilisateur, et lance les différents threads pour gérer les actions du joueur, les mouvements des monstres, et la régénération de la santé du joueur. Il contient également les fonctions pour lire les entrées utilisateur.
+
+### [utils.rs](./src/utils.rs)
+
+- **Auteur : Antonin TERRASSON**
+- **Longueur : 50 lignes**
+- **Description :** Ce module contient des fonctions utilitaires pour le jeu. Il inclut des fonctions pour lire des entrées utilisateur depuis la console, telles que `read_number` pour lire un nombre et `read_key` pour lire un caractère. Ces fonctions sont utilisées pour interagir avec l'utilisateur et obtenir des entrées nécessaires au fonctionnement du jeu.
 
 ### [ui.rs](./src/ui.rs)
 

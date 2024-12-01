@@ -1,7 +1,7 @@
 /**
  * Module grid
  * Utile pour gérer la grille de jeu
- * 
+ *
  * Auteur : Antonin TERRASSON & Nathan LEPAGE
  */
 
@@ -20,7 +20,6 @@ use crate::entities::player::Player;
 use crate::equipments::equipment::{Equipment, EquipmentManager, EquipmentType};
 use crate::items::item::{Item, ItemManager, ItemType};
 use crate::ui::UI;
-
 
 /**
  * Constantes pour les icônes
@@ -56,7 +55,6 @@ pub struct Grid {
  * Implémentation de la grille
  */
 impl Grid {
-
     /**
      * Constructeur pour initialiser une nouvelle grille
      * @param size Taille de la grille
@@ -104,7 +102,8 @@ impl Grid {
      */
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
-        self.ui.update_equipments(self.player.get_equipment().clone());
+        self.ui
+            .update_equipments(self.player.get_equipment().clone());
         self.ui.update_items(self.player.get_items().clone());
     }
 
@@ -113,7 +112,6 @@ impl Grid {
      * @return Un vecteur 2D représentant le labyrinthe
      */
     fn generate_maze(&self) -> Vec<Vec<u8>> {
-
         // Initialisation de la grille
         let mut maze = vec![vec![0; self.size]; self.size];
 
@@ -201,7 +199,8 @@ impl Grid {
                 let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
 
                 if self.is_position_empty(position) {
-                    self.items.add(Item::new(Item::random(), (position.0, position.1))?);
+                    self.items
+                        .add(Item::new(Item::random(), (position.0, position.1))?);
                     break;
                 }
             }
@@ -241,7 +240,8 @@ impl Grid {
             loop {
                 let position = (rng.gen_range(0..self.size), rng.gen_range(0..self.size));
                 if self.is_position_empty(position) {
-                    self.monsters.add(monster::get_random_monster((position.0, position.1)));
+                    self.monsters
+                        .add(monster::get_random_monster((position.0, position.1)));
                     break;
                 }
             }
@@ -270,7 +270,7 @@ impl Grid {
     pub fn display(&mut self) {
         self.build_map();
         self.update_ui();
-        if self.player.has_equipment(EquipmentType::Shoes){
+        if self.player.has_equipment(EquipmentType::Shoes) {
             if let Err(e) = self.ui.display_game_view_and_message(vec![
                 "".to_string(),
                 "--------------------- Déplacement ----------------------".to_string(),
@@ -313,7 +313,7 @@ impl Grid {
     }
 
     /**
-     * Supprime l'objet à la position du joueur
+     * Vérifies si il y a un item à la position du joueur
      */
     pub fn check_for_item(&mut self) {
         if let Some(item) = self.items.get_mut(self.player.get_position()) {
@@ -328,15 +328,16 @@ impl Grid {
     }
 
     /**
-     * Supprime l'objet à la position du joueur
+     * Vérifies si il y a un équipement à la position du joueur
      */
     pub fn check_for_equipment(&mut self) {
         if let Some(equipment) = self.equipments.get_mut(self.player.get_position()) {
             if equipment.get_position() == self.player.get_position() {
                 if !equipment.is_equiped() {
                     if self.player.has_equipment(equipment.get_type()) {
-                        self.player
-                            .add_item(Item::new(ItemType::HealingPotion, equipment.get_position()).unwrap());
+                        self.player.add_item(
+                            Item::new(ItemType::HealingPotion, equipment.get_position()).unwrap(),
+                        );
                     } else {
                         if equipment.get_type() == EquipmentType::Hat {
                             self.player.set_range(5);
@@ -356,7 +357,8 @@ impl Grid {
     }
 
     /**
-     * Supprime l'ennemi à la position du joueur
+     * Vérifies si il y a un monstre à la position du joueur et déclanche le combat dans le cas échéant
+     * @param can_flee : si le joueur à droit de fuire le combat
      */
     pub fn check_for_combat(&mut self, can_flee: bool) {
         let mut flee = false;
@@ -456,8 +458,7 @@ impl Grid {
                 'D' if x < self.size - 2 => (x + 2, y), // Move right x2
                 _ => return,
             };
-
-        }else{
+        } else {
             new_position = match movement {
                 'z' if y > 0 => (x, y - 1),             // Move up
                 'q' if x > 0 => (x - 1, y),             // Move left
@@ -481,8 +482,11 @@ impl Grid {
      */
     pub fn heal_player(&mut self, amount: i32) {
         self.player.heal(amount);
-        // self.ui.display_game_view_and_message(additional_lines);
-        println!("{} a été soigné de {} points de vie",self.player.get_name(), amount);
+        println!(
+            "{} a été soigné de {} points de vie",
+            self.player.get_name(),
+            amount
+        );
     }
 
     /**
@@ -527,77 +531,93 @@ impl Grid {
         {
             for y in 0..self.size {
                 for x in 0..self.size {
+                    // Pour chaque position x,y du tableau à afficher
                     position = (x, y);
                     if self.should_display_wall(position) {
+                        // Ajout de l'icone du mur si il y a un mur dans le tableau à afficher
                         self.map_to_display[x][y] = WALL_ICON.to_string();
                     } else if self.player.get_position() == position {
+                        // Ajout de l'icone du joueur dans le tableau à afficher
                         if self.player.is_dead() {
                             self.map_to_display[x][y] = DEAD_PLAYER_ICON.to_string();
                         } else {
                             self.map_to_display[x][y] = self.player.get_icon().to_string();
                         }
                     } else if self.goal == position {
+                        // Ajout de l'icone du but dans le tableau à afficher
                         self.map_to_display[x][y] = GOAL_ICON.to_string();
                     } else {
+                        // Ajout de l'icone des chemins (la ou il n'y a pas de murs) dans le tableau à afficher
                         self.map_to_display[x][y] = NO_WALL_ICON.to_string();
                     }
                 }
             }
         }
 
+        // Création d'un tableau de tous les équipements à porté de la vision du joueur
         let equipment_within_range = self
             .equipments
             .within_range(self.player.get_position(), self.player.get_range());
 
-        let monsters_within_range = self
-            .monsters
-            .within_range(self.player.get_position(), self.player.get_range());
-
+        // Création d'un tableau de tous les items à porté de la vision du joueur
         let items_within_range = self
             .items
             .within_range(self.player.get_position(), self.player.get_range());
 
-        let monster_positions: HashSet<_> = monsters_within_range.iter().map(|m| m.get_position()).collect();
+        // Création d'un tableau de tous les monstres à porté de la vision du joueur
+        let monsters_within_range = self
+            .monsters
+            .within_range(self.player.get_position(), self.player.get_range());
+
+        let monster_positions: HashSet<_> = monsters_within_range
+            .iter()
+            .map(|m| m.get_position())
+            .collect();
+
         for item in items_within_range {
             if item.is_visible()
                 && !monster_positions.contains(&item.get_position())
                 && self.player.get_position() != item.get_position()
             {
                 if self.player.has_equipment(EquipmentType::Glasses) {
+                    // Si le joueur porte des lunnettes ajout de l'icone de l'item dans le tableau à afficher
                     self.map_to_display[item.get_position().0][item.get_position().1] =
                         item.get_icon().to_string();
                 } else {
+                    // Ajout de l'icone part défaut dans le tableau à afficher
                     self.map_to_display[item.get_position().0][item.get_position().1] =
                         DEFAULT_ITEM_ICON.to_string();
                 }
             }
         }
-
-
+        
+        // Pour tous les équipements dans la vision du joueur
         for equipment in equipment_within_range {
             if equipment.is_visible()
                 && !monster_positions.contains(&equipment.get_position())
                 && self.player.get_position() != equipment.get_position()
             {
                 if self.player.has_equipment(EquipmentType::Glasses) {
+                    // Si le joueur porte des lunnettes ajout de l'icone de l'équipement dans le tableau à afficher
                     self.map_to_display[equipment.get_position().0][equipment.get_position().1] =
-                        equipment.get_icon().to_string();
+                    equipment.get_icon().to_string();
                 } else {
+                    // Ajout de l'icone part défaut dans le tableau à afficher
                     self.map_to_display[equipment.get_position().0][equipment.get_position().1] =
-                        DEFAULT_ITEM_ICON.to_string();
+                    DEFAULT_ITEM_ICON.to_string();
                 }
             }
         }
-
-        // println!("Player position: {:?}", self.player.get_position());
-
+        
+        // Pour tous les monstres dans la vision du joueur
         for monster in monsters_within_range.iter() {
             if monster.is_visible() {
-                // println!("Monster position: {:?}", monster.get_position());
                 if self.player.get_position() == monster.get_position() {
+                    // Ajout de l'icone du combat dans le tableau à afficher si il y a un monstre à l'emplacement du joueur
                     self.map_to_display[monster.get_position().0][monster.get_position().1] =
                     COMBAT_ICON.to_string();
                 } else {
+                    // Ajout de l'icone du monstre dans le tableau à afficher
                     self.map_to_display[monster.get_position().0][monster.get_position().1] =
                         monster.get_icon().to_string();
                 }

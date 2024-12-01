@@ -19,6 +19,11 @@
         "icon": "👖",
         "description": "Pants, adds to your defense."
     },
+    "Shoes": {
+        "name": "Shoes",
+        "icon": "👟",
+        "description": "Shoes, allow you to ge tow times faster."
+    },
     "Whip": {
         "name": "Whip",
         "icon": "💫",

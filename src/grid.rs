@@ -270,13 +270,25 @@ impl Grid {
     pub fn display(&mut self) {
         self.build_map();
         self.update_ui();
-        if let Err(e) = self.ui.display_game_view_and_message(vec![
-            "".to_string(),
-            "--------------------- Déplacement ----------------------".to_string(),
-            "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
-            "Appuyer sur entré pour valider".to_string(),
-        ]) {
-            eprintln!("Error displaying game view: {}", e);
+        if self.player.has_equipment(EquipmentType::Shoes){
+            if let Err(e) = self.ui.display_game_view_and_message(vec![
+                "".to_string(),
+                "--------------------- Déplacement ----------------------".to_string(),
+                "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
+                "(Z : hauts, Q : gauche, S : bas, D : droite - Chaussures)".to_string(),
+                "Appuyer sur entré pour valider".to_string(),
+            ]) {
+                eprintln!("Error displaying game view: {}", e);
+            }
+        } else {
+            if let Err(e) = self.ui.display_game_view_and_message(vec![
+                "".to_string(),
+                "--------------------- Déplacement ----------------------".to_string(),
+                "(z : hauts, q : gauche, s : bas, d : droite, c : suicide)".to_string(),
+                "Appuyer sur entré pour valider".to_string(),
+            ]) {
+                eprintln!("Error displaying game view: {}", e);
+            }
         }
     }
 
@@ -428,17 +440,37 @@ impl Grid {
      */
     pub fn move_player(&mut self, movement: char) {
         let (x, y) = self.player.get_position();
-        let new_position = match movement {
-            'z' if y > 0 => (x, y - 1),             // Move up
-            'q' if x > 0 => (x - 1, y),             // Move left
-            's' if y < self.size - 1 => (x, y + 1), // Move down
-            'd' if x < self.size - 1 => (x + 1, y), // Move right
-            _ => return,
-        };
+
+        let new_position;
+
+        if self.player.has_equipment(EquipmentType::Shoes) {
+            new_position = match movement {
+                'z' if y > 0 => (x, y - 1),             // Move up
+                'q' if x > 0 => (x - 1, y),             // Move left
+                's' if y < self.size - 1 => (x, y + 1), // Move down
+                'd' if x < self.size - 1 => (x + 1, y), // Move right
+
+                'Z' if y > 1 => (x, y - 2),             // Move up x2
+                'Q' if x > 1 => (x - 2, y),             // Move left x2
+                'S' if y < self.size - 2 => (x, y + 2), // Move down x2
+                'D' if x < self.size - 2 => (x + 2, y), // Move right x2
+                _ => return,
+            };
+
+        }else{
+            new_position = match movement {
+                'z' if y > 0 => (x, y - 1),             // Move up
+                'q' if x > 0 => (x - 1, y),             // Move left
+                's' if y < self.size - 1 => (x, y + 1), // Move down
+                'd' if x < self.size - 1 => (x + 1, y), // Move right
+                _ => return,
+            };
+        }
 
         if !self.walls.contains(&new_position) {
             self.player.set_position(new_position);
         }
+
         self.last_movement = movement;
         self.just_flee = false;
     }

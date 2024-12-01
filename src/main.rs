@@ -66,6 +66,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 std::process::exit(0);
             }
             grid_player.lock().unwrap().move_player(movement);
+
             tx_player.send("player_moved").unwrap();
             std::thread::sleep(std::time::Duration::from_millis(100));
         }

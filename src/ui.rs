@@ -86,9 +86,11 @@ impl UI {
 
         let mut additional_line_index = 0;
 
+        // saut de deux ligne pour plus de lisibilité avec la touche entrée par le joueur
         print!("\n");
         print!("\n");
 
+        // Affichage de la carte et du bandeau d'informations
         for y in 0..self.map_to_display.len() {
             for x in 0..self.map_to_display[y].len() {
                 print!("{}", self.map_to_display[x][y]);

@@ -24,6 +24,7 @@ pub enum EquipmentType {
     Vest,
     Pants,
     Whip,
+    Shoes,
 }
 
 #[derive(Deserialize)]
@@ -117,12 +118,13 @@ impl Equipment {
      */
     pub fn random() -> EquipmentType {
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..5) {
+        match rng.gen_range(0..6) { // Mise à jour de la plage de valeurs
             0 => EquipmentType::Hat,
             1 => EquipmentType::Glasses,
             2 => EquipmentType::Vest,
             3 => EquipmentType::Pants,
             4 => EquipmentType::Whip,
+            5 => EquipmentType::Shoes, // Ajout des chaussures
             _ => EquipmentType::Pants,
        }
     }

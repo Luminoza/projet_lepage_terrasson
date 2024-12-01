@@ -104,8 +104,7 @@ impl Grid {
      */
     fn update_ui(&mut self) {
         self.ui.update_map(self.map_to_display.clone());
-        self.ui
-            .update_equipments(self.player.get_equipment().clone());
+        self.ui.update_equipments(self.player.get_equipment().clone());
         self.ui.update_items(self.player.get_items().clone());
     }
 

@@ -1,5 +1,6 @@
 [package]
-name = "Projet_LEPAGE_TERRASSON"
+name = "projet_lepage_terrasson"
+
 version = "0.1.0"
 edition = "2021"
 

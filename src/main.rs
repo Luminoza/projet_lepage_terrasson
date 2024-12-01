@@ -8,14 +8,16 @@
 /**
  * Importation des modules
  */
-mod combat;
-mod entities;
-mod equipments;
 mod grid;
+mod entities;
+mod combat;
 mod items;
+mod equipments;
+mod ui;
+mod utils;
 
 use grid::Grid;
-mod ui;
+use utils::{read_number, read_key};
 
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -103,45 +105,3 @@ fn main() {
         }
     }
 }
-
-/**
- * Fonction pour lire un nombre depuis l'entrée standard
- */
-fn read_number() -> usize {
-    use std::io::{self, Write};
-
-    io::stdout().flush().unwrap();
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-
-    input.trim().parse::<usize>().unwrap()
-}
-
-/**
- * Fonction pour lire un caractère depuis l'entrée standard
- */
-fn read_key() -> char {
-    use std::io::{self, Write};
-
-    io::stdout().flush().unwrap();
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-
-    let key = input.chars().next().unwrap();
-    key
-}
-
-// /**
-//  * Fonction pour lire un caractère en continu depuis l'entrée standard
-//  */
-// fn read_active_key() -> char {
-//     use crossterm::event::{self, KeyCode};
-//     use crossterm::terminal::{disable_raw_mode, enable_raw_mode};
-//     enable_raw_mode().unwrap();
-//     let key = match event::read().unwrap() {
-//         event::Event::Key(event::KeyEvent { code: KeyCode::Char(c), .. }) => c,
-//         _ => ' ',
-//     };
-//     disable_raw_mode().unwrap();
-//     key
-// }

@@ -12,8 +12,8 @@ use crate::entities::entity::EntityTrait;
 use crate::entities::monster::Monster;
 use crate::entities::player::Player;
 use crate::items::item::ItemType;
-use crate::read_key;
 use crate::ui::UI;
+use crate::utils::read_key;
 
 /**
  * Fonction pour démarrer un combat entre un joueur et un monstre

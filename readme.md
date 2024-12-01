@@ -63,7 +63,7 @@ Voici une description détaillée de chaque fichier et de son rôle dans le proj
 
 - **Auteur : Antonin TERRASSON & Nathan LEPAGE**
 - **Longueur : 300 lignes**
-- **Description :** Ce module gère la grille de jeu. Il contient la structure `Grid` qui maintient l'état de la grille, des murs, des monstres, des objets, et des équipements. Il fournit des fonctions pour initialiser la grille, placer les éléments aléatoirement, et gérer les interactions entre le joueur et les autres éléments du jeu.
+- **Description :** Ce module gère la grille de jeu. Il contient la structure `Grid` qui maintient l'état de la grille, des murs, des monstres, des objets, et des équipements. Il fournit des fonctions pour initialiser la grille, placer les éléments aléatoirement, et gérer les interactions entre le joueur et les autres éléments du jeu. C'est dans ce fichier qu'est genéré le aléatoirement labyrinthe.
 
 ### [entity.rs](./src/entities/entity.rs)
 

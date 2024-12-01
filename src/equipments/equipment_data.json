@@ -19,11 +19,6 @@
         "icon": "👖",
         "description": "Pants, adds to your defense."
     },
-    "Shoes": {
-        "name": "Shoes",
-        "icon": "👟",
-        "description": "Shoes, makes you go faster."
-    },
     "Whip": {
         "name": "Whip",
         "icon": "💫",

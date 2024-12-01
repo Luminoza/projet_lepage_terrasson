@@ -23,7 +23,6 @@ pub enum EquipmentType {
     Glasses,
     Vest,
     Pants,
-    Shoes,
     Whip,
 }
 
@@ -118,13 +117,12 @@ impl Equipment {
      */
     pub fn random() -> EquipmentType {
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..6) {
+        match rng.gen_range(0..5) {
             0 => EquipmentType::Hat,
             1 => EquipmentType::Glasses,
             2 => EquipmentType::Vest,
             3 => EquipmentType::Pants,
-            4 => EquipmentType::Shoes,
-            5 => EquipmentType::Whip,
+            4 => EquipmentType::Whip,
             _ => EquipmentType::Pants,
        }
     }

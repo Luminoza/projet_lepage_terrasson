@@ -1,7 +1,7 @@
 /**
  * Module Combat
  * Utile pour gérer les combats du jeu
- * 
+ *
  * Auteur :  Nathan LEPAGE & Antonin TERRASSON
  */
 
@@ -39,10 +39,19 @@ pub fn start_combat(
             }
         };
 
-        if handle_action(action, can_flee, player, monster, ui, turn) {
-            return true;
+        if action == 'a' {
+            if handle_attack(can_flee, player, monster, ui, turn) {
+                return true;
+            }
+        } else if action == 'p' {
+            handle_potion(can_flee, player, monster, ui, turn);
+        } else if action == 'f' {
+            if handle_flee(can_flee, player, monster, ui, turn) {
+                return false;
+            }
+        } else {
+            handle_invalid_choice(can_flee, player, monster, ui, turn);
         }
-
         turn += 1;
     }
 }
@@ -98,23 +107,8 @@ fn display_error(ui: &mut UI) {
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
         "Erreur de lecture de la touche. Veuillez réessayer.".to_string(),
-    ]).unwrap();
-}
-
-fn handle_action(
-    action: char,
-    can_flee: bool,
-    player: &mut Player,
-    monster: &mut Monster,
-    ui: &mut UI,
-    turn: usize,
-) -> bool {
-    match action {
-        'a' => handle_attack(can_flee, player, monster, ui, turn),
-        'p' => handle_potion(can_flee, player, monster, ui, turn),
-        'f' => handle_flee(can_flee, player, monster, ui, turn),
-        _ => handle_invalid_choice(can_flee, player, monster, ui, turn),
-    }
+    ])
+    .unwrap();
 }
 
 fn handle_attack(
@@ -178,13 +172,7 @@ fn handle_invalid_choice(
     false
 }
 
-fn display_victory(
-    ui: &mut UI,
-    can_flee: bool,
-    player: &Player,
-    monster: &Monster,
-    turn: usize,
-) {
+fn display_victory(ui: &mut UI, can_flee: bool, player: &Player, monster: &Monster, turn: usize) {
     ui.display_game_view_and_message(vec![
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
@@ -206,16 +194,11 @@ fn display_victory(
         "".to_string(),
         "Vous avez gagné le combat! 🎉".to_string(),
         "Appuyez sur une touche pour continuer".to_string(),
-    ]).unwrap();
+    ])
+    .unwrap();
 }
 
-fn display_defeat(
-    ui: &mut UI,
-    can_flee: bool,
-    player: &Player,
-    monster: &Monster,
-    turn: usize,
-) {
+fn display_defeat(ui: &mut UI, can_flee: bool, player: &Player, monster: &Monster, turn: usize) {
     ui.display_game_view_and_message(vec![
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
@@ -237,16 +220,11 @@ fn display_defeat(
         ),
         "".to_string(),
         "Vous êtes mort 💀".to_string(),
-    ]).unwrap();
+    ])
+    .unwrap();
 }
 
-fn display_turn(
-    ui: &mut UI,
-    can_flee: bool,
-    player: &Player,
-    monster: &Monster,
-    turn: usize,
-) {
+fn display_turn(ui: &mut UI, can_flee: bool, player: &Player, monster: &Monster, turn: usize) {
     ui.display_game_view_and_message(vec![
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
@@ -269,16 +247,11 @@ fn display_turn(
         "".to_string(),
         format!("{} attaque {} !", player.get_name(), monster.get_name()),
         format!("{} attaque {} !", monster.get_name(), player.get_name()),
-    ]).unwrap();
+    ])
+    .unwrap();
 }
 
-fn display_flee(
-    ui: &mut UI,
-    can_flee: bool,
-    player: &Player,
-    monster: &Monster,
-    turn: usize,
-) {
+fn display_flee(ui: &mut UI, can_flee: bool, player: &Player, monster: &Monster, turn: usize) {
     ui.display_game_view_and_message(vec![
         "".to_string(),
         "--------------------- ❌ Combat ❌ ---------------------".to_string(),
@@ -301,7 +274,8 @@ fn display_flee(
         "".to_string(),
         "Vous avez fui le combat !".to_string(),
         "Appuyez sur une touche pour continuer".to_string(),
-    ]).unwrap();
+    ])
+    .unwrap();
 }
 
 fn display_invalid_choice(
@@ -332,5 +306,6 @@ fn display_invalid_choice(
         ),
         "".to_string(),
         "Choix invalide !".to_string(),
-    ]).unwrap();
+    ])
+    .unwrap();
 }
